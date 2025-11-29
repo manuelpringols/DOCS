@@ -1,0 +1,1041 @@
+% ==========================
+% TEMPLATE LaTeX "Dark Edition"
+% Copia e incolla questo file per iniziare ogni nuovo progetto
+% ==========================
+
+\documentclass[10pt,a4paper]{article}
+
+% ----- Pacchetti -----
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage[dvipsnames,svgnames,x11names]{xcolor}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{textcomp}
+\usepackage{sectsty}
+\usepackage{tikz}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+% ----- Formattazione sottosezioni -----
+\titleformat{\subsection}
+  {\normalfont\Large\bfseries\color{subsectioncolor}}
+  {\thesubsection}
+  {1em}
+  {}
+  [\vspace{0.2em}\color{sectioncolor}\rule{\linewidth}{1pt}\vspace{0.5em}]
+
+% ----- Header/Footer -----
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancyfoot[C]{\textcolor{subsectioncolor}{\thepage}}
+\fancyfoot[R]{\hyperlink{toc}{\textcolor{sectioncolor}{\textit{I}}}}
+
+\pagestyle{fancy}
+
+% ----- TikZ -----
+\usetikzlibrary{shapes, arrows}
+
+% ----- Margini -----
+\geometry{margin=1.5cm}
+
+% ----- Colori tema scuro -----
+\definecolor{darkbg}{HTML}{0D1117}
+\definecolor{lighttext}{HTML}{E6EDF3}
+\definecolor{sectioncolor}{HTML}{FF5555}
+\definecolor{subsectioncolor}{HTML}{58A6FF}
+\definecolor{linkcolor}{HTML}{FF5555}
+\definecolor{urllink}{HTML}{58A6FF}
+
+% ----- Attivazione dark mode -----
+\makeatletter
+\AtBeginDocument{%
+  \pagecolor{darkbg}%
+  \color{lighttext}%
+}
+\makeatother
+
+% ----- Font dei titoli -----
+\sectionfont{\color{sectioncolor}}
+\subsectionfont{\color{subsectioncolor}}
+
+% ----- TOC -----
+\renewcommand{\cftsecfont}{\color{sectioncolor}}
+\renewcommand{\cftsubsecfont}{\color{subsectioncolor}}
+\renewcommand{\cftsubsubsecfont}{\color{subsectioncolor}}
+
+% ----- Link -----
+\hypersetup{hidelinks}
+
+% ----- Tabelle -----
+\setlength{\extrarowheight}{2pt}
+
+\title{TITOLO DEL DOCUMENTO}
+\begin{document}
+
+\maketitle
+\renewcommand{\contentsname}{INDICE}
+\tableofcontents
+
+% Target dell'indice
+\hypertarget{toc}{}
+
+\newpage
+Foundamentals
+
+
+\section{Concetti di Base della Programmazione}
+
+\subsection{Variabili e Tipi di Dato}
+Le variabili rappresentano porzioni di memoria che contengono valori. Ogni variabile ha un tipo che stabilisce:
+\begin{itemize}
+    \item la dimensione in memoria,
+    \item il formato del dato,
+    \item le operazioni consentite.
+\end{itemize}
+
+Tipi primitivi:
+\begin{itemize}
+    \item \textit{int}: numeri interi a 32 bit.
+    \item \textit{double}: numeri con la virgola a 64 bit.
+    \item \textit{boolean}: valori logici \texttt{true}/\texttt{false}.
+    \item \textit{char}: carattere Unicode a 16 bit.
+\end{itemize}
+
+Tipi reference:
+\begin{itemize}
+    \item Oggetti,
+    \item Array,
+    \item String (che pur essendo trattata come primitivo è un oggetto).
+\end{itemize}
+
+\begin{verbatim}
+int x = 10;
+double price = 19.99;
+boolean isReady = true;
+String name = "Java";
+char letter = 'A';
+\end{verbatim}
+
+\subsection{Strutture di Controllo}
+Le strutture di controllo determinano il flusso dell'esecuzione.
+
+\begin{verbatim}
+if (x > 10) {
+    // blocco eseguito se la condizione è vera
+} else {
+    // alternativa
+}
+
+for (int i = 0; i < 5; i++) {
+    System.out.println(i);
+}
+
+while (condition) {
+    // ripete finché la condizione è vera
+}
+
+do {
+    // eseguito almeno una volta
+} while(condition);
+\end{verbatim}
+
+\subsection{Funzioni e Metodi}
+I metodi rappresentano blocchi riutilizzabili di codice.
+
+\begin{itemize}
+    \item \textit{Firma del metodo}: tipo di ritorno + nome + parametri.
+    \item \textit{Return}: restituisce un valore al chiamante.
+    \item \textit{Overloading}: più metodi con lo stesso nome ma parametri diversi.
+\end{itemize}
+
+\begin{verbatim}
+int sum(int a, int b) {
+    return a + b;
+}
+
+int sum(int a, int b, int c) {
+    return a + b + c;  // esempio di overloading
+}
+\end{verbatim}
+
+\section{Fondamenti della Programmazione a Oggetti}
+
+\subsection{Classi e Oggetti}
+Una classe è un modello per creare oggetti. Gli oggetti sono istanze che contengono:
+\begin{itemize}
+    \item attributi (stato),
+    \item metodi (comportamento).
+\end{itemize}
+
+\begin{verbatim}
+class Car {
+    String model;
+    int year;
+
+    void info() {
+        System.out.println(model + " - " + year);
+    }
+}
+
+Car c = new Car();
+c.model = "Fiat";
+c.year = 2020;
+c.info();
+\end{verbatim}
+
+\subsection{Incapsulamento}
+Permette di nascondere i dettagli interni e proteggere lo stato dell'oggetto.
+
+\begin{itemize}
+    \item \textit{private}: accesso solo dalla classe.
+    \item \textit{public}: accesso libero.
+    \item \textit{protected}: accesso da sottoclassi.
+\end{itemize}
+
+\begin{verbatim}
+class User {
+    private String name;
+    private int age;
+
+    public String getName() { return name; }
+    public void setName(String n) { name = n; }
+
+    public int getAge() { return age; }
+    public void setAge(int a) {
+        if (a > 0) age = a;
+    }
+}
+\end{verbatim}
+
+\subsection{Ereditarietà}
+Consente di riusare e specializzare codice.
+
+\begin{itemize}
+    \item una classe può estendere una sola classe (ereditarietà singola),
+    \item supporta overriding dei metodi,
+    \item permette polimorfismo.
+\end{itemize}
+
+\begin{verbatim}
+class Vehicle {
+    void move() { System.out.println("Moving..."); }
+}
+
+class Bike extends Vehicle {
+    @Override
+    void move() { System.out.println("Bike moving"); }
+}
+\end{verbatim}
+
+\subsection{Polimorfismo}
+Il polimorfismo consente di utilizzare oggetti di classi diverse tramite un'interfaccia comune, permettendo al codice di essere più flessibile e riutilizzabile. In pratica, lo stesso codice può chiamare metodi su oggetti diversi e ottenere comportamenti differenti, senza sapere esattamente di quale classe specifica si tratta.
+
+\begin{itemize}
+    \item \textit{Polimorfismo di sottotipo (runtime)}: un oggetto di una sottoclasse può essere trattato come oggetto della superclasse. Il metodo corretto viene scelto dinamicamente.
+    \item \textit{Polimorfismo di compile-time (overloading)}: stesso nome del metodo con parametri diversi. La scelta avviene a tempo di compilazione.
+\end{itemize}
+
+\textit{Esempio runtime:}
+
+\begin{verbatim}
+class Animal {
+    void speak() { System.out.println("Some sound"); }
+}
+
+class Dog extends Animal {
+    @Override
+    void speak() { System.out.println("Bark"); }
+}
+
+class Cat extends Animal {
+    @Override
+    void speak() { System.out.println("Meow"); }
+}
+
+Animal a1 = new Dog();
+Animal a2 = new Cat();
+
+a1.speak(); // Output: Bark
+a2.speak(); // Output: Meow
+\end{verbatim}
+
+\textit{Spiegazione:} anche se `a1` e `a2` sono dichiarati come `Animal`, il metodo corretto di ciascuna sottoclasse viene eseguito, grazie al polimorfismo runtime.
+
+\textit{Vantaggi:}
+\begin{itemize}
+    \item Codice più modulare e riutilizzabile.
+    \item Riduce if/else per gestire comportamenti diversi.
+    \item Facilita l'estensione del software senza modificare codice esistente.
+\end{itemize}
+
+\begin{verbatim}
+Vehicle v = new Bike();
+v.move();    // dinamicamente: stampa "Bike moving"
+\end{verbatim}
+
+\subsection{Astrazione}
+Consiste nel definire concetti generici tramite classi astratte o interfacce.
+
+\begin{verbatim}
+abstract class Shape {
+    abstract double area();
+}
+
+class Square extends Shape {
+    double side;
+    Square(double side) { this.side = side; }
+    double area() { return side * side; }
+}
+\end{verbatim}
+
+\section{Concetti Avanzati OOP}
+
+\subsection{Interfacce}
+Un'interfaccia definisce un contratto senza implementazione.
+
+\begin{verbatim}
+interface Drawable {
+    void draw();
+}
+
+class Circle implements Drawable {
+    public void draw() { System.out.println("Draw Circle"); }
+}
+\end{verbatim}
+
+\subsection{Overloading e Overriding}
+\begin{itemize}
+    \item \textit{Overloading}: tempo di compilazione, stessa classe.
+    \item \textit{Overriding}: tempo di esecuzione, ereditarietà.
+    \item Per fare override occorre l'annotazione @Override.
+\end{itemize}
+
+\subsection{Generics}
+Permettono di creare classi e metodi tipizzati.
+
+\begin{verbatim}
+class Box<T> {
+    private T value;
+    void set(T v) { value = v; }
+    T get() { return value; }
+}
+
+Box<Integer> b = new Box<>();
+b.set(5);
+\end{verbatim}
+
+\section{Design Patterns Fondamentali}
+
+
+\subsection{Singleton}
+\textit{Scopo:} garantire che una classe abbia una sola istanza e fornire un punto di accesso globale.
+
+\textit{Concetti chiave:}
+\begin{itemize}
+    \item Istanza privata e statica.
+    \item Costruttore privato per evitare creazioni esterne.
+    \item Metodo pubblico statico per ottenere l’istanza.
+\end{itemize}
+
+\begin{verbatim}
+class Singleton {
+    private static Singleton instance;
+
+    private Singleton() {}
+
+    public static Singleton getInstance() {
+        if (instance == null) instance = new Singleton();
+        return instance;
+    }
+}
+
+// Utilizzo
+Singleton s1 = Singleton.getInstance();
+Singleton s2 = Singleton.getInstance();
+// s1 e s2 puntano alla stessa istanza
+\end{verbatim}
+
+\textit{Vantaggi:}
+\begin{itemize}
+    \item Controllo centralizzato.
+    \item Evita duplicazioni di risorse.
+\end{itemize}
+
+---
+
+\subsection{Factory Method}
+\textit{Scopo:} creare oggetti senza esporre la logica di costruzione, favorendo estensibilità.
+
+\textit{Concetti chiave:}
+\begin{itemize}
+    \item Creator astratto con metodo di creazione astratto.
+    \item ConcreteCreator implementa la creazione specifica.
+    \item Il client usa solo il creator, senza conoscere il prodotto concreto.
+\end{itemize}
+
+\begin{verbatim}
+abstract class Product {}
+class ConcreteProduct extends Product {}
+
+abstract class Creator {
+    abstract Product create();
+}
+
+class ConcreteCreator extends Creator {
+    Product create() { return new ConcreteProduct(); }
+}
+
+// Utilizzo
+Creator creator = new ConcreteCreator();
+Product p = creator.create();
+\end{verbatim}
+
+\textit{Vantaggi:}
+\begin{itemize}
+    \item Decoupling tra creazione e utilizzo.
+    \item Facile aggiungere nuovi prodotti senza cambiare il client.
+\end{itemize}
+
+
+\subsection{Strategy}
+\textit{Scopo:} permettere di cambiare il comportamento di un oggetto a runtime senza modificare la classe.
+
+\textit{Concetti chiave:}
+\begin{itemize}
+    \item Interfaccia comune per tutti i comportamenti.
+    \item Implementazioni concrete del comportamento.
+    \item Classe Context usa una strategia e può cambiarla dinamicamente.
+\end{itemize}
+
+\begin{verbatim}
+interface Payment { void pay(); }
+
+class Paypal implements Payment {
+    public void pay() { System.out.println("PayPal"); }
+}
+
+class Card implements Payment {
+    public void pay() { System.out.println("Card payment"); }
+}
+
+class Context {
+    private Payment method;
+    void setStrategy(Payment m) { method = m; }
+    void execute() { method.pay(); }
+}
+
+// Utilizzo
+Context ctx = new Context();
+ctx.setStrategy(new Paypal());
+ctx.execute(); // PayPal
+ctx.setStrategy(new Card());
+ctx.execute(); // Card payment
+\end{verbatim}
+
+\textit{Vantaggi:}
+\begin{itemize}
+    \item Comportamenti intercambiabili senza cambiare Context.
+    \item Facilita test e manutenzione.
+\end{itemize}
+
+---
+
+\subsection{Observer}
+\textit{Scopo:} permettere a un oggetto (Subject) di notificare automaticamente più oggetti interessati (Observer) quando cambia il suo stato.
+
+\textit{Concetti chiave:}
+\begin{itemize}
+    \item \textit{Subject}: mantiene lo stato e la lista di Observer.
+    \item \textit{Observer}: implementa il metodo \texttt{update()}.
+    \item \textit{Loose coupling}: Subject non conosce i dettagli degli Observer.
+\end{itemize}
+
+\begin{verbatim}
+interface Observer { void update(String message); }
+
+interface Subject {
+    void addObserver(Observer o);
+    void removeObserver(Observer o);
+    void notifyObservers();
+}
+
+class NewsAgency implements Subject {
+    private List<Observer> observers = new ArrayList<>();
+    private String news;
+
+    public void addObserver(Observer o) { observers.add(o); }
+    public void removeObserver(Observer o) { observers.remove(o); }
+
+    public void setNews(String news) {
+        this.news = news;
+        notifyObservers();
+    }
+
+    public void notifyObservers() {
+        for (Observer o : observers) {
+            o.update(news);
+        }
+    }
+}
+
+class NewsChannel implements Observer {
+    private String news;
+    public void update(String news) {
+        this.news = news;
+        System.out.println("Received: " + news);
+    }
+}
+
+// Utilizzo
+NewsAgency agency = new NewsAgency();
+NewsChannel channel1 = new NewsChannel();
+NewsChannel channel2 = new NewsChannel();
+
+agency.addObserver(channel1);
+agency.addObserver(channel2);
+
+agency.setNews("Breaking news!");
+\end{verbatim}
+
+\textit{Vantaggi:}
+\begin{itemize}
+    \item Aggiornamento automatico di più oggetti.
+    \item Riduce dipendenze tra Subject e Observer.
+    \item Facilita estensione e manutenzione del codice.
+\end{itemize}
+
+
+\section{Algoritmi Fondamentali}
+
+\subsection{Bubble Sort}
+\begin{verbatim}
+void bubbleSort(int[] arr) {
+    boolean swapped;
+    do {
+        swapped = false;
+        for (int i = 0; i < arr.length - 1; i++) {
+            if (arr[i] > arr[i+1]) {
+                int t = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = t;
+                swapped = true;
+            }
+        }
+    } while (swapped);
+}
+\end{verbatim}
+
+\textbf{Complexity:} 
+\begin{itemize}
+    \item Worst-case: O(n²)
+    \item Best-case (array già ordinato): O(n)
+    \item Space: O(1)
+\end{itemize}
+
+\textbf{Come funziona:} Bubble Sort confronta coppie di elementi vicini e li scambia se sono nell’ordine sbagliato. Ripete tutto finché non ci sono più swap.  
+
+\textbf{Costo:} Molto alto per array grandi perché ogni elemento può essere confrontato con tutti gli altri.  
+
+\textbf{Quando usarlo:} Solo per array piccoli o quasi ordinati, oppure come esercizio didattico.  
+
+\subsection{Selection Sort}
+\begin{verbatim}
+void selectionSort(int[] arr) {
+    for (int i = 0; i < arr.length; i++) {
+        int min = i;
+        for (int j = i+1; j < arr.length; j++) {
+            if (arr[j] < arr[min]) min = j;
+        }
+        int t = arr[i];
+        arr[i] = arr[min];
+        arr[min] = t;
+    }
+}
+\end{verbatim}
+
+\textbf{Complexity:} 
+\begin{itemize}
+    \item Worst-case: O(n²)
+    \item Best-case: O(n²) (non migliora se l’array è già ordinato)
+    \item Space: O(1)
+\end{itemize}
+
+\textbf{Come funziona:} Trova il minimo nella parte non ordinata e lo sposta all’inizio, ripetendo fino a ordinare tutto.  
+
+\textbf{Costo:} Alto, ma meno swap rispetto a Bubble Sort.  
+
+\textbf{Quando usarlo:} Quando vuoi ridurre il numero di swap rispetto a Bubble Sort, ma comunque non per array grandi.  
+
+\subsection{Insertion Sort}
+\begin{verbatim}
+void insertionSort(int[] arr) {
+    for (int i = 1; i < arr.length; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j+1] = arr[j];
+            j--;
+        }
+        arr[j+1] = key;
+    }
+}
+\end{verbatim}
+
+\textbf{Complexity:} 
+\begin{itemize}
+    \item Worst-case: O(n²)
+    \item Best-case (quasi ordinato): O(n)
+    \item Space: O(1)
+\end{itemize}
+
+\textbf{Come funziona:} Inserisce ogni elemento nella posizione corretta tra quelli già ordinati, come se stessimo ordinando le carte in mano.  
+
+\textbf{Costo:} Molto basso per array piccoli o quasi ordinati.  
+
+\textbf{Quando usarlo:} Perfetto per array quasi ordinati o piccoli set di dati; spesso usato come subroutine in algoritmi più complessi come Merge Sort.  
+
+\subsection{Binary Search}
+\begin{verbatim}
+int binarySearch(int[] arr, int target) {
+    int low = 0, high = arr.length - 1;
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (arr[mid] == target) return mid;
+        if (arr[mid] < target) low = mid + 1;
+        else high = mid - 1;
+    }
+    return -1;
+}
+\end{verbatim}
+
+\textbf{Complexity:} 
+\begin{itemize}
+    \item Worst-case: O(log n)
+    \item Best-case: O(1)
+    \item Space: O(1)
+    
+
+    
+\end{itemize}
+
+\textbf{Come funziona:} Divide a metà l’array ordinato e decide quale metà continuare a cercare. Ripete finché trova l’elemento o finisce l’array.  
+
+\textbf{Costo:} Super efficiente per array grandi, ma funziona solo su array già ordinati.  
+
+\textbf{Quando usarlo:} Sempre su array ordinati; ottimo per lookup rapidi in database, liste ordinate, o qualsiasi struttura in cui cerchi spesso valori.  
+
+
+
+\subsection{Merge Sort}
+\begin{verbatim}
+void mergeSort(int[] arr, int left, int right) {
+    if (left < right) {
+        int mid = (left + right) / 2;
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+        merge(arr, left, mid, right);
+    }
+}
+
+void merge(int[] arr, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    int[] L = new int[n1];
+    int[] R = new int[n2];
+    for (int i = 0; i < n1; i++) L[i] = arr[left + i];
+    for (int j = 0; j < n2; j++) R[j] = arr[mid + 1 + j];
+
+    int i = 0, j = 0, k = left;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) arr[k++] = L[i++];
+        else arr[k++] = R[j++];
+    }
+    while (i < n1) arr[k++] = L[i++];
+    while (j < n2) arr[k++] = R[j++];
+}
+\end{verbatim}
+
+\textbf{Complexity:} 
+\begin{itemize}
+    \item Worst-case: O(n log n)
+    \item Best-case: O(n log n)
+    \item Space: O(n) (richiede memoria aggiuntiva per array temporanei)
+\end{itemize}
+
+\textbf{Come funziona:} Merge Sort divide ricorsivamente l’array a metà fino a singoli elementi, poi li ricombina ordinandoli. È un algoritmo \textbf{divide and conquer}.  
+
+\textbf{Costo:} Più alto in termini di memoria rispetto a Insertion o Selection Sort, ma molto efficiente per array grandi.  
+
+\textbf{Quando usarlo:} Ideale per array grandi o strutture dati che non entrano in memoria contigua. Perfetto se serve stabilità nell’ordinamento (non cambia l’ordine relativo di elementi uguali).  
+
+\textbf{Esempio pratico:} Ordinare una lista di 100.000 numeri. Bubble/Selection/Insertion sarebbero troppo lenti (O(n²)), mentre Merge Sort rimane O(n log n), quindi molto più veloce.
+
+
+
+\section{Comprendere i Costi Computazionali (Big O) in Termini Pratici}
+
+Quando parliamo di algoritmi, spesso si usa la \textbf{notazione Big O} per indicare quanto “costa” un algoritmo in termini di tempo o spazio, cioè quanto cresce il lavoro da fare quando aumenta la dimensione del problema (n). Ecco una spiegazione chiara con esempi concreti:
+
+\subsection{O(1) - Tempo Costante}
+\begin{itemize}
+    \item \textbf{Cosa significa:} L’algoritmo impiega sempre lo stesso tempo, indipendentemente dalla dimensione dell’input.
+    \item \textbf{Esempio:} Leggere il primo elemento di un array.
+    \item \textbf{Analogia:} Cercare un libro su uno scaffale sapendo già esattamente dove si trova.
+\end{itemize}
+
+\subsection{O(n) - Tempo Lineare}
+\begin{itemize}
+    \item \textbf{Cosa significa:} Il tempo cresce proporzionalmente al numero di elementi. Se hai 10 elementi ci mette X tempo, se ne hai 100 ci mette circa 10 volte X.
+    \item \textbf{Esempio:} Cercare un numero in un array non ordinato (linear search).
+    \item \textbf{Analogia:} Controllare ogni libro su uno scaffale uno per uno finché trovi quello giusto.
+\end{itemize}
+
+\subsection{O(n²) - Tempo Quadratico}
+\begin{itemize}
+    \item \textbf{Cosa significa:} Il tempo cresce come il quadrato del numero di elementi. Raddoppiare n fa quadruplicare il tempo.
+    \item \textbf{Esempio:} Bubble Sort o Selection Sort su un array di n elementi.
+    \item \textbf{Analogia:} Se devi controllare ogni coppia di libri per vedere quale è più grande, per 10 libri fai 45 confronti, per 100 libri fai 4950 confronti.
+\end{itemize}
+
+\subsection{O(log n) - Tempo Logaritmico}
+\begin{itemize}
+    \item \textbf{Cosa significa:} L’algoritmo riduce l’input a metà ad ogni passo. Anche aumentando molto n, il tempo cresce lentamente.
+    \item \textbf{Esempio:} Binary Search in un array ordinato.
+    \item \textbf{Analogia:} Cercare un libro in una biblioteca seguendo l’alfabeto: apri a metà della sezione, poi metà della metà, ecc. Anche se la biblioteca è enorme, bastano pochi passaggi.
+\end{itemize}
+
+\subsection{O(n log n) - Tempo Lineare-Logaritmico}
+\begin{itemize}
+    \item \textbf{Cosa significa:} L’algoritmo fa un lavoro proporzionale a n volte log n. Cresce più veloce di lineare ma molto più lento di quadratico.
+    \item \textbf{Esempio:} Merge Sort, Quick Sort (medio caso).
+    \item \textbf{Analogia:} Dividere una lista di libri in metà, ordinarle e poi unirle ordinatamente. Ogni livello di divisione richiede un passaggio lineare per ricombinare.
+\end{itemize}
+
+\subsection{Perché è importante}
+Sapere queste complessità aiuta a:
+\begin{itemize}
+    \item Prevedere se un algoritmo è adatto a grandi dataset.
+    \item Capire quali algoritmi saranno lenti o veloci in pratica.
+    \item Scegliere il giusto compromesso tra tempo e spazio.
+\end{itemize}
+
+
+
+
+\section{Low-Level Concepts}
+
+\subsection{Stack and Heap}
+\begin{itemize}
+    \item \textbf{Stack:} Memoria veloce per funzioni e variabili locali. Viene liberata automaticamente quando la funzione finisce.
+    \item \textbf{Heap:} Memoria per oggetti creati dinamicamente. Gestita dal garbage collector (Java) o manualmente (C/C++).
+\end{itemize}
+
+\subsection{Pass-by-Value}
+In Java, tutto è passato \textbf{by value}:  
+\begin{itemize}
+    \item Per tipi primitivi: la funzione riceve una copia del valore.
+    \item Per oggetti: la funzione riceve una copia della reference. Modificare l’oggetto dentro la funzione cambia l’oggetto originale, ma assegnare la reference a un nuovo oggetto non lo fa.
+\end{itemize}
+
+\begin{verbatim}
+void change(int x) { x = 10; }
+\end{verbatim}
+
+\textbf{Costo:} O(1) per la copia del valore/reference.  
+
+\textbf{Quando usarlo:} Sempre in Java; è il comportamento standard per chiamate di funzione.
+
+
+\subsection{Memoria e Garbage Collector}
+Il GC libera memoria eliminando oggetti non più referenziati.
+
+\subsection{Eccezioni}
+\begin{itemize}
+    \item Checked: devono essere gestite.
+    \item Unchecked: errori di runtime.
+\end{itemize}
+
+\begin{verbatim}
+try {
+    risky();
+} catch (Exception e) {
+    e.printStackTrace();
+}
+\end{verbatim}
+
+
+\section{HTTP e HTTPS}
+
+\subsection{HTTP (HyperText Transfer Protocol)}
+\textbf{Definizione:} HTTP è un protocollo di comunicazione usato per trasferire dati tra client (browser) e server sul web.  
+
+\textbf{Caratteristiche principali:}
+\begin{itemize}
+    \item \textbf{Stateless:} ogni richiesta è indipendente; il server non ricorda le richieste precedenti.
+    \item \textbf{Testuale:} i dati sono inviati in chiaro, leggibili da chi intercetta la connessione.
+    \item \textbf{Usato per:} navigazione web, invio/ricezione di dati tramite form, API non crittografate.
+\end{itemize}
+
+\textbf{Funzionamento semplificato:}
+\begin{enumerate}
+    \item Il client invia una richiesta HTTP al server (GET, POST, ecc.).
+    \item Il server elabora la richiesta e invia una risposta.
+    \item I dati viaggiano in chiaro sulla rete.
+\end{enumerate}
+
+\textbf{Problemi principali:}
+\begin{itemize}
+    \item I dati possono essere intercettati facilmente (es. password, informazioni sensibili).
+    \item Vulnerabile a attacchi come man-in-the-middle.
+\end{itemize}
+
+\subsection{HTTPS (HTTP Secure)}
+\textbf{Definizione:} HTTPS è la versione sicura di HTTP. Aggiunge un livello di crittografia usando TLS/SSL per proteggere i dati in transito.  
+
+\textbf{Caratteristiche principali:}
+\begin{itemize}
+    \item \textbf{Crittografia:} i dati sono cifrati, quindi non leggibili da chi intercetta.
+    \item \textbf{Autenticità:} il certificato TLS/SSL garantisce che il server sia quello giusto.
+    \item \textbf{Integrità:} i dati non possono essere modificati senza essere rilevati.
+\end{itemize}
+
+\textbf{Come funziona (semplificato):}
+\begin{enumerate}
+    \item Il client si collega al server e richiede una connessione sicura.
+    \item Il server invia il certificato SSL/TLS.
+    \item Il client verifica il certificato.
+    \item Si stabilisce una chiave simmetrica tramite crittografia asimmetrica.
+    \item Tutti i dati successivi vengono cifrati con la chiave simmetrica (più veloce) per la durata della sessione.
+\end{enumerate}
+
+\textbf{Vantaggi di HTTPS:}
+\begin{itemize}
+    \item Protezione dei dati sensibili (password, numeri di carta, ecc.).
+    \item Protezione contro attacchi di tipo man-in-the-middle.
+    \item Migliore fiducia per gli utenti e SEO migliore sui motori di ricerca.
+\end{itemize}
+
+\textbf{Esempio pratico:}  
+Quando inserisci la tua password su un sito bancario:
+\begin{itemize}
+    \item Con HTTP: la password viaggia in chiaro → rischio intercettazione.
+    \item Con HTTPS: la password è cifrata → impossibile leggerla senza la chiave privata del server.
+\end{itemize}
+
+\textbf{Nota:} HTTPS è ormai lo standard per qualsiasi sito moderno, anche per contenuti pubblici, perché protegge la privacy degli utenti e impedisce modifiche ai dati trasmessi.
+
+
+\section{Pila TCP/IP e Modello OSI}
+
+\subsection{Modello OSI (Open Systems Interconnection)}
+Il modello OSI è un framework concettuale che divide la comunicazione di rete in \textbf{7 livelli}, ciascuno con responsabilità specifiche:
+
+\begin{enumerate}
+    \item \textbf{Layer 7 – Application:} fornisce servizi di rete alle applicazioni (es. browser, email).
+    \item \textbf{Layer 6 – Presentation:} traduce i dati in formati comprensibili, cifratura, compressione.
+    \item \textbf{Layer 5 – Session:} gestisce le sessioni di comunicazione tra applicazioni.
+    \item \textbf{Layer 4 – Transport:} garantisce consegna affidabile dei dati (TCP) o veloce ma senza garanzia (UDP).
+    \item \textbf{Layer 3 – Network:} instrada i pacchetti tra reti diverse (IP).
+    \item \textbf{Layer 2 – Data Link:} gestione dei frame su reti locali, indirizzamento MAC, controllo errori.
+    \item \textbf{Layer 1 – Physical:} trasmissione dei bit su cavi, fibra, onde radio, ecc.
+\end{enumerate}
+
+\subsection{Pila TCP/IP}
+La pila TCP/IP è più pratica e usata nel mondo reale. Ha \textbf{4 livelli principali}:
+
+\begin{enumerate}
+    \item \textbf{Application Layer:} HTTP, HTTPS, FTP, SMTP.
+    \item \textbf{Transport Layer:} TCP (affidabile), UDP (veloce).
+    \item \textbf{Internet Layer:} IP, ICMP.
+    \item \textbf{Network Access / Link Layer:} Ethernet, Wi-Fi, ARP.
+\end{enumerate}
+
+\textbf{Differenze principali tra OSI e TCP/IP:}  
+\begin{itemize}
+    \item OSI ha 7 livelli teorici, TCP/IP 4 pratici.
+    \item TCP/IP combina Session, Presentation e Application in un solo livello Application.
+    \item TCP/IP è quello effettivamente implementato su Internet.
+\end{itemize}
+
+\subsection{Grafico ASCII - Modello OSI}
+\begin{verbatim}
++--------------------+
+|  Application (7)   |
++--------------------+
+|  Presentation (6)  |
++--------------------+
+|  Session (5)       |
++--------------------+
+|  Transport (4)     |
++--------------------+
+|  Network (3)       |
++--------------------+
+|  Data Link (2)     |
++--------------------+
+|  Physical (1)      |
++--------------------+
+\end{verbatim}
+
+\subsection{Grafico ASCII - Pila TCP/IP}
+\begin{verbatim}
++-----------------------------+
+|  Application Layer          |
+|  (HTTP, HTTPS, FTP, SMTP)   |
++-----------------------------+
+|  Transport Layer            |
+|  (TCP, UDP)                 |
++-----------------------------+
+|  Internet Layer             |
+|  (IP, ICMP)                 |
++-----------------------------+
+|  Network Access / Link Layer|
+|  (Ethernet, Wi-Fi, ARP)     |
++-----------------------------+
+\end{verbatim}
+
+\textbf{Spiegazione pratica:}  
+Quando mandi un pacchetto:
+\begin{itemize}
+    \item Parte dall’Application Layer (es. browser vuole una pagina).
+    \item Passa al Transport Layer (TCP aggiunge numero di porta, controllo errori).
+    \item Arriva al Network Layer (IP decide dove spedire il pacchetto).
+    \item Infine al Data Link / Physical Layer (il pacchetto viaggia fisicamente su cavi o onde radio).
+\end{itemize}
+
+\textbf{Nota:} Ogni livello aggiunge “informazioni di controllo” chiamate \textbf{header} per garantire che il pacchetto arrivi a destinazione correttamente.
+
+\section{Concetti di Informatica di Base}
+
+\subsection{Bit e Byte}
+\begin{itemize}
+    \item \textbf{Bit:} la più piccola unità di informazione, può essere 0 o 1.
+    \item \textbf{Byte:} gruppo di 8 bit, usato per rappresentare caratteri o piccoli numeri.
+    \item \textbf{Multipli comuni:}
+    \begin{itemize}
+        \item 1 KB (kilobyte) = 1024 B
+        \item 1 MB (megabyte) = 1024 KB
+        \item 1 GB (gigabyte) = 1024 MB
+        \item 1 TB (terabyte) = 1024 GB
+    \end{itemize}
+\end{itemize}
+
+\subsection{Rappresentazione dei dati}
+\begin{itemize}
+    \item \textbf{Numeri interi:} rappresentati in binario, es. 5 = 00000101.
+    \item \textbf{Numeri decimali e floating point:} rappresentano numeri con la virgola (IEEE 754).
+    \item \textbf{Caratteri:} codificati tramite standard come ASCII o UTF-8.
+\end{itemize}
+
+\subsection{Sistema binario e logica}
+\begin{itemize}
+    \item I computer lavorano in \textbf{base 2}: tutto è 0 e 1.
+    \item Operazioni logiche fondamentali:
+    \begin{itemize}
+        \item AND, OR, NOT, XOR
+        \item Usate per confronto, calcoli e controllo del flusso.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Memoria e archiviazione}
+\begin{itemize}
+    \item \textbf{RAM (Random Access Memory):} memoria volatile, usata per dati temporanei e processi in esecuzione.
+    \item \textbf{ROM (Read Only Memory):} memoria non volatile, contiene dati permanenti come firmware.
+    \item \textbf{Storage:} hard disk, SSD, memorie esterne. Conservano dati a lungo termine.
+\end{itemize}
+
+\subsection{CPU e elaborazione}
+\begin{itemize}
+    \item \textbf{CPU (Central Processing Unit):} il “cervello” del computer che esegue istruzioni.
+    \item \textbf{Ciclo di fetch-decode-execute:} la CPU prende istruzioni dalla memoria, le interpreta e le esegue.
+\end{itemize}
+
+\subsection{Reti e protocolli base}
+\begin{itemize}
+    \item \textbf{IP address:} identificativo unico di un dispositivo in rete.
+    \item \textbf{MAC address:} identificatore unico della scheda di rete.
+    \item \textbf{DNS:} sistema che traduce nomi di dominio in indirizzi IP.
+\end{itemize}
+
+\subsection{File e filesystem}
+\begin{itemize}
+    \item I dati sono organizzati in file.
+    \item I file sono organizzati in cartelle/directories.
+    \item I filesystem gestiscono come i dati sono memorizzati e recuperati.
+\end{itemize}
+
+\subsection{Unità di misura delle prestazioni}
+\begin{itemize}
+    \item \textbf{Hz:} cicli al secondo, misura velocità della CPU.
+    \item \textbf{Ops/sec:} operazioni al secondo, utile per misurare performance di calcolo.
+\end{itemize}
+
+\subsection{Indirizzi IP}
+
+\textbf{Breve spiegazione:}  
+Un indirizzo IP (Internet Protocol) è un identificativo numerico unico assegnato a ogni dispositivo connesso a una rete. Serve per far “parlare” i computer tra loro, permettendo l’invio e la ricezione di dati.
+
+\subsubsection{Dettagli tecnici e informazioni complete}
+
+\begin{itemize}
+    \item \textbf{Versioni principali:}
+    \begin{itemize}
+        \item \textbf{IPv4:} indirizzi a 32 bit, scritti in notazione decimale puntata (es. 192.168.0.1). Permette circa 4,3 miliardi di indirizzi.
+        \item \textbf{IPv6:} indirizzi a 128 bit, scritti in esadecimale separata da due punti (es. 2001:0db8:85a3::8a2e:0370:7334). Serve per risolvere il problema della scarsità di IPv4.
+    \end{itemize}
+
+    \item \textbf{Tipi di indirizzi IP:}
+    \begin{itemize}
+        \item \textbf{Statici:} assegnati manualmente e non cambiano.
+        \item \textbf{Dinamici:} assegnati automaticamente tramite DHCP, possono cambiare nel tempo.
+        \item \textbf{Pubblici:} visibili su Internet, unici globalmente.
+        \item \textbf{Privati:} usati in reti locali, non visibili su Internet (es. 192.168.x.x, 10.x.x.x).
+        \item \textbf{Multicast:} per inviare pacchetti a un gruppo di destinatari.
+        \item \textbf{Broadcast:} per inviare pacchetti a tutti i dispositivi di una rete locale.
+    \end{itemize}
+
+    \item \textbf{Struttura di un indirizzo IPv4:}
+    \begin{itemize}
+        \item Composto da 4 ottetti (8 bit ciascuno), separati da punti.
+        \item Esempio: 192.168.1.5 → ogni ottetto è un numero da 0 a 255.
+        \item Può essere diviso in \textbf{network part} e \textbf{host part} usando la subnet mask (es. 255.255.255.0).
+    \end{itemize}
+
+    \item \textbf{Subnetting:}  
+    Permette di dividere una rete in sotto-reti più piccole per ottimizzare l’uso degli indirizzi IP e migliorare la sicurezza/gestione della rete.  
+    Esempio: 192.168.1.0/24 → 256 indirizzi totali (0-255), di cui molti riservati.
+
+    \item \textbf{IPv6 caratteristiche aggiuntive:}
+    \begin{itemize}
+        \item Indirizzi enormi, praticamente illimitati.
+        \item Supporta autoconfigurazione (SLAAC).
+        \item Migliore gestione del routing e supporto nativo per multicast.
+        \item Notazione abbreviata: zeri consecutivi possono essere compressi (::).
+    \end{itemize}
+
+    \item \textbf{Funzione pratica:}  
+    Gli indirizzi IP permettono a router e switch di instradare pacchetti fino al dispositivo corretto, sia in una rete locale che su Internet.  
+    Senza indirizzi IP un pacchetto non saprebbe a chi consegnare i dati.
+
+    \item \textbf{Esempi concreti:}
+    \begin{itemize}
+        \item PC in una rete domestica: 192.168.1.5
+        \item Router con IP pubblico: 85.12.45.67
+        \item IPv6 di un server moderno: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+    \end{itemize}
+
+    \item \textbf{Strumenti utili:}  
+    \begin{itemize}
+        \item \texttt{ping} → verifica se un IP è raggiungibile.
+        \item \texttt{traceroute / tracert} → mostra il percorso dei pacchetti verso un IP.
+        \item \texttt{ipconfig / ifconfig} → mostra l’indirizzo IP del dispositivo.
+    \end{itemize}
+\end{itemize}
+
+
+
+\end{document}

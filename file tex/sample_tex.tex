@@ -1,0 +1,115 @@
+% ==========================
+% TEMPLATE LaTeX "Dark Edition"
+% Copia e incolla questo file per iniziare ogni nuovo progetto
+% ==========================
+
+\documentclass[10pt,a4paper]{article}
+
+% ----- Pacchetti -----
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage[dvipsnames,svgnames,x11names]{xcolor}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{textcomp}
+\usepackage{sectsty}
+\usepackage{tikz}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+% ----- Formattazione sottosezioni -----
+\titleformat{\subsection}
+  {\normalfont\Large\bfseries\color{subsectioncolor}}
+  {\thesubsection}
+  {1em}
+  {}
+  [\vspace{0.2em}\color{sectioncolor}\rule{\linewidth}{1pt}\vspace{0.5em}]
+
+% ----- Header/Footer -----
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancyfoot[C]{\textcolor{subsectioncolor}{\thepage}}
+\fancyfoot[R]{\hyperlink{toc}{\textcolor{sectioncolor}{\textbf{I}}}}
+\pagestyle{fancy}
+
+% ----- TikZ -----
+\usetikzlibrary{shapes, arrows}
+
+% ----- Margini -----
+\geometry{margin=1.5cm}
+
+% ----- Colori tema scuro -----
+\definecolor{darkbg}{HTML}{0D1117}
+\definecolor{lighttext}{HTML}{E6EDF3}
+\definecolor{sectioncolor}{HTML}{FF5555}
+\definecolor{subsectioncolor}{HTML}{58A6FF}
+\definecolor{linkcolor}{HTML}{FF5555}
+\definecolor{urllink}{HTML}{58A6FF}
+
+% ----- Attivazione dark mode -----
+\makeatletter
+\AtBeginDocument{%
+  \pagecolor{darkbg}%
+  \color{lighttext}%
+}
+\makeatother
+
+% ----- Font dei titoli -----
+\sectionfont{\color{sectioncolor}}
+\subsectionfont{\color{subsectioncolor}}
+
+% ----- TOC -----
+\renewcommand{\cftsecfont}{\color{sectioncolor}}
+\renewcommand{\cftsubsecfont}{\color{subsectioncolor}}
+\renewcommand{\cftsubsubsecfont}{\color{subsectioncolor}}
+
+% ----- Link -----
+\hypersetup{hidelinks}
+
+% ----- Tabelle -----
+\setlength{\extrarowheight}{2pt}
+
+\title{TITOLO DEL DOCUMENTO}
+\begin{document}
+
+\maketitle
+\renewcommand{\contentsname}{INDICE}
+\tableofcontents
+
+
+
+% Crea il target dell'indice
+\hypersetup{linkcolor=blue} % colore link
+
+
+\hypertarget{toc}{} % questo è il “target” a cui punta la I
+\newpage
+Contenuto della sezione.
+
+
+
+
+
+
+
+\section{Sezione di esempio}
+Contenuto della sezione.
+
+
+\subsection{Sottosezione di esempio}
+Contenuto della sottosezione.
+
+
+end{document}
+
+
+% ==========================
+% Fine documento
+% ==========================
+
+
+\end{document}

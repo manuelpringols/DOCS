@@ -1,0 +1,1221 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage[dvipsnames,svgnames,x11names]{xcolor}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{textcomp}
+\usepackage{sectsty}
+\usepackage{tikz}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\usepackage{enumitem} % assicurati di averlo incluso
+
+\titleformat{\section}
+  {\Huge\bfseries\color{sectioncolor}}
+  {\thesection}
+  {0.5em}
+  {}
+
+
+% Margini
+\geometry{margin=1.5cm}
+
+
+\titleformat{\subsection}  % ridefinisce il formato delle sottosezioni
+  {\normalfont\Large\bfseries\color{subsectioncolor}} % stile del titolo + colore
+  {\thesubsection}             % numero della sottosezione
+  {1em}                        % spazio tra numero e titolo
+  {}                            % codice prima del titolo
+  [\vspace{0.2em}\color{sectioncolor}\rule{\linewidth}{1pt}\vspace{0.5em}] % linea bianca dopo il titolo
+
+\fancyhf{} % cancella header e footer di default
+\renewcommand{\headrulewidth}{0pt} % niente linea in alto
+\renewcommand{\footrulewidth}{0pt} % niente linea in basso
+
+% Footer
+\fancyfoot[C]{\textcolor{subsectioncolor}{\thepage}} % numero di pagina al centro in bianco
+\fancyfoot[R]{\hyperlink{toc}{\textcolor{sectioncolor}{\textbf{I}}}} % link all'indice a destra in bianco
+
+% Colori dark
+\definecolor{darkbg}{HTML}{0D1117}
+\definecolor{lighttext}{HTML}{E6EDF3}
+\definecolor{sectioncolor}{HTML}{FF5555}     % rosso per section
+\definecolor{subsectioncolor}{HTML}{58A6FF}  % blu per subsection
+\definecolor{linkcolor}{HTML}{FF5555}        % link section rosso
+\definecolor{urllink}{HTML}{58A6FF}          % link esterni blu
+
+% Tema scuro attivo
+\makeatletter
+\AtBeginDocument{%
+  \pagecolor{darkbg}%
+  \color{lighttext}%
+}
+\makeatother
+
+% Titoli colorati
+\sectionfont{\color{sectioncolor}}        % Sezioni rosse
+\subsectionfont{\color{subsectioncolor}}  % Sottosezioni blu
+
+% TOC colori
+\renewcommand{\cftsecfont}{\color{sectioncolor}}
+\renewcommand{\cftsubsecfont}{\color{subsectioncolor}}
+\renewcommand{\cftsubsubsecfont}{\color{subsectioncolor}}
+
+% Link invisibili (hidelinks)
+\hypersetup{hidelinks}
+
+% Footer semplice
+\fancyhf{} % cancella header e footer di default
+\renewcommand{\headrulewidth}{0pt} % niente linea in alto
+\renewcommand{\footrulewidth}{0pt} % niente linea in basso
+
+% Footer
+\fancyfoot[C]{\textcolor{subsectioncolor}{\thepage}} % numero di pagina al centro in bianco
+\fancyfoot[R]{\hyperlink{toc}{\textcolor{sectioncolor}{\textbf{I}}}} % link all'indice a destra in bianco
+
+\pagestyle{fancy}
+
+% Spaziatura righe tabella
+\setlength{\extrarowheight}{2pt}
+
+% Tikz
+\usetikzlibrary{shapes, arrows}
+
+\title{Guida Rapida ad Angular (Dark Edition)}
+\begin{document}
+\maketitle
+\renewcommand{\contentsname}{INDICE}
+\tableofcontents
+
+% Crea il target dell'indice
+\hypersetup{linkcolor=blue} % colore link
+
+\hypertarget{toc}{} % questo è il “target” a cui punta la I
+\newpage
+
+
+
+
+\section{Introduzione ad Angular}
+
+Angular è un framework front-end sviluppato da Google per creare applicazioni web single-page (SPA) moderne, modulari e scalabili. Basato su TypeScript, Angular utilizza un'architettura a componenti e servizi, promuove la separazione delle responsabilità e semplifica la gestione dello stato, delle richieste HTTP e della navigazione.
+
+\subsection{Vantaggi principali di Angular}
+\begin{itemize}
+    \item \textbf{Component-based architecture}: ogni parte dell'interfaccia è un componente riutilizzabile.
+    \item \textbf{Two-way data binding}: sincronizzazione automatica tra modello e view.
+    \item \textbf{Dependency Injection}: semplifica l’iniezione di servizi nei componenti.
+    \item \textbf{TypeScript}: forte tipizzazione e strumenti di debugging.
+    \item \textbf{CLI ufficiale}: scaffolding rapido di progetti, componenti, servizi, moduli e test.
+    \item \textbf{Routing integrato}: gestione delle route e navigazione tra view.
+\end{itemize}
+
+\subsection{Avviare un progetto Angular}
+\begin{enumerate}
+    \item Installare Node.js e Angular CLI:
+\begin{verbatim}
+npm install -g @angular/cli
+\end{verbatim}
+    \item Creare un nuovo progetto:
+\begin{verbatim}
+ng new nome-progetto
+\end{verbatim}
+    \item Avviare l'app in sviluppo:
+\begin{verbatim}
+cd nome-progetto
+ng serve
+\end{verbatim}
+    L'app sarà accessibile su \texttt{http://localhost:4200}.
+    \item Struttura generata dalla CLI:
+    \begin{itemize}
+        \item \texttt{src/app}: cartella principale per componenti, servizi e moduli.
+        \item \texttt{app.component.ts/html/css}: componente root.
+        \item \texttt{app.module.ts}: modulo principale che importa componenti e servizi.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Concetti fondamentali}
+\begin{itemize}
+    \item \textbf{Componenti}: classi TypeScript con template HTML e stili CSS. Gestiscono la logica di una parte dell'interfaccia.
+    \item \textbf{Servizi}: classi per logica condivisa, chiamate HTTP, gestione dello stato o interazione con storage locale.
+    \item \textbf{Moduli}: raggruppano componenti e servizi correlati. Ogni progetto ha un modulo root (\texttt{AppModule}) e può avere moduli feature.
+    \item \textbf{Directive}: estendono il comportamento di elementi HTML.
+    \item \textbf{Pipe}: trasformano i dati nel template (es: formattazione date o numeri).
+    \item \textbf{Routing}: definizione delle rotte nel modulo di routing per navigare tra componenti.
+    \item \textbf{HTTP Interceptor}: intercetta richieste HTTP per aggiungere token, gestire errori o logging.
+    \item \textbf{LocalStorage / SessionStorage}: memorizzazione locale di dati persistenti.
+\end{itemize}
+
+\subsection{Struttura di un componente Angular}
+\begin{verbatim}
+@Component({
+  selector: 'app-nome',
+  templateUrl: './nome.component.html',
+  styleUrls: ['./nome.component.css']
+})
+export class NomeComponent {
+  // proprietà e metodi del componente
+}
+\end{verbatim}
+
+\subsection{Servizio base}
+\begin{verbatim}
+@Injectable({
+  providedIn: 'root'
+})
+export class NomeService {
+  constructor(private http: HttpClient) {}
+
+  getData(): Observable<Data[]> {
+    return this.http.get<Data[]>('/api/data');
+  }
+}
+\end{verbatim}
+
+\subsection{Interceptor base}
+\begin{verbatim}
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const token = localStorage.getItem('token');
+    const cloned = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    });
+    return next.handle(cloned);
+  }
+}
+\end{verbatim}
+
+
+\section{Gestione dei Servizi Angular}
+
+In Angular, i servizi sono fondamentali per separare la logica di business dai componenti, gestire chiamate HTTP, e interagire con API esterne o storage locale. I servizi permettono di centralizzare la logica condivisa e sfruttare la Dependency Injection.
+
+\subsection{Servizi base}
+
+Un servizio base può essere creato tramite CLI o manualmente. I servizi vengono dichiarati con il decoratore \texttt{@Injectable} e registrati nel modulo root o in moduli feature.
+
+\begin{verbatim}
+@Injectable({
+  providedIn: 'root'  // disponibile in tutta l'app
+})
+export class NomeService {
+  constructor(private http: HttpClient) {}
+
+  getData(): Observable<Data[]> {
+    return this.http.get<Data[]>('/api/data');
+  }
+}
+\end{verbatim}
+
+\subsection{Integrazione con API esterne}
+
+Per consumare API esterne (REST o Firebase) si usa il servizio Angular con \texttt{HttpClient}.  
+
+Esempio: chiamata a un endpoint Firebase Realtime Database:
+
+\begin{verbatim}
+@Injectable({ providedIn: 'root' })
+export class FirebaseService {
+  private baseUrl = 'https://<PROJECT_ID>.firebaseio.com';
+
+  constructor(private http: HttpClient) {}
+
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/users.json`);
+  }
+
+  addUser(user: User): Observable<User> {
+    return this.http.post<User>(`${this.baseUrl}/users.json`, user);
+  }
+}
+\end{verbatim}
+
+\subsection{Gestione dei servizi autonomi}
+
+Alcuni servizi possono essere completamente indipendenti, senza dipendenze da HTTP, per gestire stato interno, logica, calcoli o interazioni con LocalStorage/SessionStorage:
+
+\begin{verbatim}
+@Injectable({ providedIn: 'root' })
+export class StateService {
+  private currentUser: User | null = null;
+
+  setUser(user: User) {
+    this.currentUser = user;
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  getUser(): User | null {
+    const stored = localStorage.getItem('user');
+    return stored ? JSON.parse(stored) : this.currentUser;
+  }
+
+  clearUser() {
+    this.currentUser = null;
+    localStorage.removeItem('user');
+  }
+}
+\end{verbatim}
+
+\subsection{Servizi con Dependency Injection multipla}
+
+È possibile iniettare più servizi in un componente per orchestrare logica complessa:
+
+\begin{verbatim}
+@Component({...})
+export class DashboardComponent {
+  constructor(
+    private firebaseService: FirebaseService,
+    private stateService: StateService
+  ) {}
+
+  loadData() {
+    this.firebaseService.getUsers().subscribe(users => {
+      console.log(users);
+      this.stateService.setUser(users[0]);
+    });
+  }
+}
+\end{verbatim}
+
+\subsection{Best practice nella gestione dei servizi}
+
+\begin{itemize}
+    \item Usare \texttt{@Injectable({ providedIn: 'root' })} per servizi globali.
+    \item Separare la logica di business dai componenti.
+    \item Non fare chiamate HTTP direttamente nei componenti.
+    \item Gestire gli errori con operatori RxJS (\texttt{catchError}, \texttt{retry}).
+    \item Usare Interceptor per aggiungere token e logging a tutte le richieste HTTP.
+    \item Documentare i servizi e le API integrate.
+\end{itemize}
+\section{Data Binding, Directives e Forms in Angular}
+
+\subsection{Tipi di Data Binding}
+
+Angular offre diversi modi per collegare il template HTML alla logica TypeScript dei componenti:
+
+\begin{itemize}
+\item \textbf{Interpolation ({{ }})}: visualizza valori del componente nel template.
+\begin{verbatim}
+
+<p>{{ title }}</p> <!-- Mostra il valore di title in HTML -->
+    \end{verbatim}
+
+```
+\item \textbf{Property Binding [prop]}: lega proprietà HTML a variabili TS.
+\begin{verbatim}
+```
+
+<img [src]="imageUrl" alt="Immagine dinamica">
+\end{verbatim}
+
+```
+\item \textbf{Event Binding (event)}: cattura eventi HTML.
+\begin{verbatim}
+```
+
+<button (click)="onClick()">Cliccami</button>
+\end{verbatim}
+
+```
+\item \textbf{Two-way Binding [(ngModel)]}: sincronizza variabile TS e input HTML.
+\begin{verbatim}
+```
+
+<input [(ngModel)]="username" placeholder="Nome utente">
+
+<p>Ciao {{ username }}</p>
+    \end{verbatim}
+\end{itemize}
+
+\subsection{Directives Strutturali}
+
+Le directives strutturali modificano la struttura del DOM:
+
+\begin{itemize}
+\item \textbf{*ngIf}: mostra o nasconde elementi.
+\begin{verbatim}
+
+<p *ngIf="isLoggedIn">Benvenuto!</p>
+    \end{verbatim}
+
+```
+\item \textbf{*ngFor}: cicla su array o oggetti.
+\begin{verbatim}
+```
+
+<ul>
+  <li *ngFor="let item of items; let i = index">
+    {{ i+1 }} - {{ item.name }}
+  </li>
+</ul>
+    \end{verbatim}
+
+```
+\item \textbf{*ngSwitch}: scelta tra più template.
+\begin{verbatim}
+```
+
+<div [ngSwitch]="role">
+  <p *ngSwitchCase="'admin'">Admin view</p>
+  <p *ngSwitchCase="'user'">User view</p>
+  <p *ngSwitchDefault>Guest view</p>
+</div>
+    \end{verbatim}
+\end{itemize}
+
+\subsection{Directives Attributo}
+
+Le directives attributo modificano comportamento o stile di un elemento:
+
+\begin{itemize}
+\item \textbf{[ngClass]}: classi CSS dinamiche
+\begin{verbatim}
+
+<div [ngClass]="{'active': isActive, 'disabled': isDisabled}">
+  Contenuto
+</div>
+    \end{verbatim}
+
+```
+\item \textbf{[ngStyle]}: stili inline dinamici
+\begin{verbatim}
+```
+
+<p [ngStyle]="{'color': isError ? 'red' : 'green'}">
+  Messaggio di stato
+</p>
+    \end{verbatim}
+\end{itemize}
+
+\subsection{Forms in Angular}
+
+\subsubsection{Template-driven Forms}
+
+\begin{verbatim}
+
+<form #userForm="ngForm" (ngSubmit)="onSubmit(userForm)">
+  <input name="username" ngModel required>
+  <input type="email" name="email" ngModel>
+  <button type="submit">Invia</button>
+</form>
+\end{verbatim}
+
+\textbf{Note:} Utilizzabili per form semplici, validazioni base con attributi HTML5 + \texttt{ngModel}.
+
+\subsubsection{Reactive Forms}
+
+\begin{verbatim}
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+
+export class AppComponent {
+userForm = new FormGroup({
+username: new FormControl('', [Validators.required, Validators.minLength(3)]),
+email: new FormControl('', [Validators.email])
+});
+
+onSubmit() {
+console.log(this.userForm.value);
+}
+}
+\end{verbatim}
+
+\begin{verbatim}
+
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+  <input formControlName="username">
+  <input formControlName="email">
+  <button type="submit">Invia</button>
+</form>
+\end{verbatim}
+
+\subsection{Pipes}
+
+I pipes trasformano i dati direttamente nel template:
+
+\begin{itemize}
+\item \textbf{Pipe built-in}
+\begin{verbatim}
+
+<p>{{ today | date:'shortDate' }}</p>
+<p>{{ name | uppercase }}</p>
+<p>{{ price | currency:'EUR' }}</p>
+    \end{verbatim}
+
+```
+\item \textbf{Pipe personalizzate}
+\begin{verbatim}
+```
+
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({name: 'exclaim'})
+export class ExclaimPipe implements PipeTransform {
+transform(value: string): string {
+return value + '!!!';
+}
+}
+
+<p>{{ 'Ciao' | exclaim }}</p> <!-- Risultato: Ciao!!! -->
+    \end{verbatim}
+\end{itemize}
+
+\subsection{Eventi e metodi nei componenti}
+
+\begin{verbatim}
+@Component({...})
+export class MyComponent {
+username = '';
+
+onInput(event: any) {
+this.username = event.target.value;
+}
+
+onClick() {
+alert('Hai cliccato!');
+}
+}
+\end{verbatim}
+
+\begin{verbatim}
+<input (input)="onInput($event)">
+<button (click)="onClick()">Click</button>
+
+<p>Ciao {{ username }}</p>
+\end{verbatim}
+
+\subsection{Best Practices}
+
+\begin{itemize}
+\item Usare \textbf{Reactive Forms} per form complessi con logica di validazione avanzata.
+\item Tenere la logica dei componenti leggera e delegare servizi per chiamate HTTP.
+\item Riutilizzare \textbf{componenti} e \textbf{pipes} per modularità.
+\item Usare \textbf{AsyncPipe} per Observable e Promise.
+\item Preferire \textbf{trackBy} con *ngFor per performance.
+\end{itemize}
+
+\section{Lifecycle Hooks dei Componenti Angular}
+
+Angular fornisce una serie di metodi chiamati \textbf{lifecycle hooks} che permettono di agganciarsi a eventi chiave del ciclo di vita dei componenti e delle direttive. Questi hook consentono di eseguire logica custom in momenti precisi: creazione, aggiornamento, distruzione e cambiamenti di input.
+
+\subsection{ngOnChanges}
+\begin{itemize}
+\item Triggerato quando cambia il valore di un input binding (@Input) nel componente.
+\item Permette di reagire a cambiamenti dei dati esterni.
+\end{itemize}
+
+\begin{verbatim}
+export class MyComponent implements OnChanges {
+@Input() data: string;
+
+ngOnChanges(changes: SimpleChanges) {
+console.log('Cambiamento input:', changes.data.currentValue);
+}
+}
+\end{verbatim}
+
+\subsection{ngOnInit}
+\begin{itemize}
+\item Chiamato una sola volta subito dopo la prima inizializzazione degli input del componente.
+\item Ideale per inizializzazioni di dati o chiamate HTTP tramite servizi.
+\end{itemize}
+
+\begin{verbatim}
+export class MyComponent implements OnInit {
+ngOnInit() {
+console.log('Componente inizializzato');
+this.loadData();
+}
+
+loadData() {
+// chiamata a un servizio
+}
+}
+\end{verbatim}
+
+\subsection{ngDoCheck}
+\begin{itemize}
+\item Chiamato ad ogni rilevamento dei cambiamenti (change detection) del componente.
+\item Permette di implementare controlli custom oltre al default di Angular.
+\end{itemize}
+
+\begin{verbatim}
+ngDoCheck() {
+console.log('Change detection attiva');
+}
+\end{verbatim}
+
+\subsection{ngAfterContentInit}
+\begin{itemize}
+\item Chiamato dopo che Angular ha proiettato il contenuto esterno nel componente (<ng-content>).
+\end{itemize}
+
+\subsection{ngAfterContentChecked}
+\begin{itemize}
+\item Triggerato dopo ogni ciclo di change detection del contenuto proiettato.
+\end{itemize}
+
+\subsection{ngAfterViewInit}
+\begin{itemize}
+\item Chiamato dopo che Angular ha inizializzato le view e le view figlie del componente.
+\item Utile per accedere a template reference variables o elementi DOM via @ViewChild.
+\end{itemize}
+
+\begin{verbatim}
+export class MyComponent implements AfterViewInit {
+@ViewChild('myDiv') myDiv: ElementRef;
+
+ngAfterViewInit() {
+console.log(this.myDiv.nativeElement.innerHTML);
+}
+}
+\end{verbatim}
+
+\subsection{ngAfterViewChecked}
+\begin{itemize}
+\item Triggerato dopo ogni ciclo di change detection della view del componente e delle view figlie.
+\end{itemize}
+
+\subsection{ngOnDestroy}
+\begin{itemize}
+\item Chiamato subito prima che il componente venga distrutto.
+\item Utile per pulire subscription, timers o listener per evitare memory leaks.
+\end{itemize}
+
+\begin{verbatim}
+export class MyComponent implements OnDestroy {
+subscription: Subscription;
+
+ngOnDestroy() {
+this.subscription.unsubscribe();
+console.log('Componente distrutto');
+}
+}
+\end{verbatim}
+
+\subsection{Riepilogo Lifecycle Hook}
+
+\begin{table}[h!]
+\color{lighttext}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\texttt{Hook Angular} & \textbf{Descrizione} \\
+\hline
+\texttt{ngOnChanges} & Cambiamento input (@Input) \\
+\texttt{ngOnInit} & Dopo la prima inizializzazione \\
+\texttt{ngDoCheck} & Ad ogni change detection \\
+\texttt{ngAfterContentInit} & Dopo la proiezione del contenuto \\
+\texttt{ngAfterContentChecked} & Dopo ogni change detection del contenuto \\
+\texttt{ngAfterViewInit} & Dopo l'inizializzazione della view \\
+\texttt{ngAfterViewChecked} & Dopo ogni change detection della view \\
+\texttt{ngOnDestroy} & Prima della distruzione del componente \\
+\hline
+\end{tabular}
+\caption{Lifecycle hooks principali di Angular}
+\end{table}
+
+\subsection{Best Practices}
+
+\begingroup
+\color{lighttext}
+\begin{itemize}
+    \item Utilizzare \texttt{ngOnInit} per inizializzazioni di dati asincroni.
+    \item Evitare logica complessa in \texttt{ngDoCheck} per non degradare le performance.
+    \item Pulire subscription e listener in \texttt{ngOnDestroy}.
+    \item Non manipolare direttamente il DOM, preferire \texttt{@ViewChild} o direttive.
+\end{itemize}
+\endgroup
+
+
+
+\section{Gestione dei Form in Angular}
+
+I form in Angular sono essenziali per raccogliere dati dagli utenti e inviarli a backend o servizi. Angular offre due approcci principali:
+
+\subsection{Template-driven Forms}
+
+\begin{itemize}
+    \item Basati sul template HTML: la logica del form è gestita direttamente nel template.
+    \item Facili da implementare per form semplici.
+    \item Utilizzano le direttive di Angular come \texttt{ngModel}, \texttt{ngForm}, \texttt{required}, ecc.
+    \item Esempio base:
+
+\begin{verbatim}
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+  <input type="text" name="username" ngModel required>
+  <input type="email" name="email" ngModel>
+  <button type="submit">Invia</button>
+</form>
+\end{verbatim}
+
+    \item In questo approccio, i dati del form si trovano nell'oggetto \texttt{form.value}.
+    \item Validazioni semplici tramite attributi HTML (\texttt{required}, \texttt{minlength}, ecc.).
+\end{itemize}
+
+\subsection{Reactive Forms (o Model-driven Forms)}
+
+\begin{itemize}
+    \item Basati su TypeScript: il form è definito in codice e non solo in template.
+    \item Più potenti e adatti a form complessi.
+    \item Utilizzano \texttt{FormGroup}, \texttt{FormControl} e \texttt{FormBuilder}.
+    \item Permettono validazioni dinamiche, custom validator e gestione avanzata dello stato.
+    \item Esempio base:
+
+\begin{verbatim}
+this.userForm = this.fb.group({
+  username: ['', [Validators.required, Validators.minLength(3)]],
+  email: ['', [Validators.email]]
+});
+
+onSubmit() {
+  console.log(this.userForm.value);
+}
+\end{verbatim}
+
+    \item Nel template:
+
+\begin{verbatim}
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+  <input formControlName="username">
+  <input formControlName="email">
+  <button type="submit">Invia</button>
+</form>
+\end{verbatim}
+\end{itemize}
+
+\subsection{Validazioni e feedback utente}
+
+\begin{itemize}
+    \item Validazioni integrate: \texttt{required}, \texttt{minlength}, \texttt{maxlength}, \texttt{pattern}, \texttt{email}.
+    \item Validazioni custom: funzioni che ritornano \texttt{null} se valido o un oggetto errore se non valido.
+    \item Mostrare messaggi di errore condizionali con \texttt{*ngIf}:
+
+\begin{verbatim}
+<div *ngIf="userForm.controls['username'].invalid && userForm.controls['username'].touched">
+  Username obbligatorio
+</div>
+\end{verbatim}
+\end{itemize}
+
+\subsection{Passaggio di dati tra componenti}
+
+\begin{itemize}
+    \item \textbf{Parent \textrightarrow Child}: usare \texttt{@Input} per passare valori dal componente genitore al figlio.
+    \item \textbf{Child \textrightarrow Parent}: usare \texttt{@Output} con \texttt{EventEmitter} per inviare dati dal figlio al genitore.
+    \item \textbf{Componenti non correlati}: usare servizi con \texttt{BehaviorSubject} o \texttt{Subject} per comunicazione tramite Observable.
+    \item Esempio \texttt{@Input / @Output}:
+
+\begin{verbatim}
+// child.component.ts
+@Input() userData: any;
+@Output() submitData = new EventEmitter<any>();
+
+onSubmit() {
+  this.submitData.emit(this.userData);
+}
+\end{verbatim}
+
+\begin{verbatim}
+// parent.component.html
+<app-child [userData]="currentUser" (submitData)="handleSubmit($event)"></app-child>
+\end{verbatim}
+\end{itemize}
+
+\subsection{Invio dati a backend o servizi esterni}
+
+\begin{itemize}
+    \item Creare un servizio con \texttt{HttpClient} per comunicare con API REST o Firebase.
+    \item Esempio invio dati:
+
+\begin{verbatim}
+@Injectable({ providedIn: 'root' })
+export class ApiService {
+  constructor(private http: HttpClient) {}
+
+  sendForm(data: any) {
+    return this.http.post('/api/form', data);
+  }
+}
+\end{verbatim}
+
+    \item Chiamare il servizio dal componente:
+
+\begin{verbatim}
+onSubmit() {
+  this.apiService.sendForm(this.userForm.value)
+    .subscribe(response => console.log(response));
+}
+\end{verbatim}
+
+    \item Gestione asincrona con \texttt{Observable} e \texttt{subscribe}, oppure con \texttt{async pipe} nel template.
+\end{itemize}
+
+\subsection{Gestione dello stato dei form}
+
+\begin{itemize}
+    \item Stato dei form: \texttt{valid}, \texttt{invalid}, \texttt{dirty}, \texttt{pristine}, \texttt{touched}, \texttt{untouched}.
+    \item Permette di abilitare/disabilitare pulsanti o mostrare feedback.
+    \item Esempio:
+
+\begin{verbatim}
+<button type="submit" [disabled]="userForm.invalid">Invia</button>
+</verbatim}
+\end{itemize}
+
+\subsection{Integrazione con Firebase o API esterne}
+
+\begin{itemize}
+    \item Usare servizi Angular per connettersi a Firebase Realtime Database o Firestore.
+    \item Esempio invio dati a Firestore:
+
+\begin{verbatim}
+constructor(private afs: AngularFirestore) {}
+
+saveUser(user: any) {
+  return this.afs.collection('users').add(user);
+}
+\end{verbatim}
+
+    \item Per API REST esterne: usare \texttt{HttpClient} con header e token se necessario.
+\end{itemize}
+
+
+\section{Routing Avanzato in Angular}
+
+Il routing in Angular permette di gestire la navigazione tra componenti e view in modo modulare e scalabile. Oltre al routing base, esistono funzionalità avanzate per ottimizzare caricamenti, sicurezza e gestione dei parametri.
+
+\subsection{Lazy Loading dei Moduli}
+\begin{itemize}
+\item Permette di caricare i moduli solo quando necessario, migliorando le performance.
+\item Si configura nel modulo di routing principale con \texttt{loadChildren}.
+\end{itemize}
+
+\begin{verbatim}
+// app-routing.module.ts
+const routes: Routes = [
+{ path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule) }
+];
+\end{verbatim}
+
+\subsection{Route Guards}
+\begin{itemize}
+\item Proteggono le rotte dall'accesso non autorizzato o gestiscono l'abbandono della pagina.
+\item Tipi principali:
+\begin{itemize}
+\item \texttt{CanActivate}: controlla se una rotta può essere attivata.
+\item \texttt{CanDeactivate}: controlla se si può lasciare una rotta.
+\item \texttt{Resolve}: pre-carica dati prima di attivare la rotta.
+\item \texttt{CanLoad}: controlla il caricamento di moduli lazy.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+// esempio CanActivate
+@Injectable({ providedIn: 'root' })
+export class AuthGuard implements CanActivate {
+constructor(private auth: AuthService, private router: Router) {}
+
+canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+if (this.auth.isLoggedIn()) return true;
+this.router.navigate(['/login']);
+return false;
+}
+}
+\end{verbatim}
+
+\subsection{Parametri di Route e QueryParams}
+\begin{itemize}
+\item \textbf{Parametri di route}: passati direttamente nell’URL, accessibili tramite \texttt{ActivatedRoute}.
+\item \textbf{QueryParams}: parametri opzionali nell’URL, ideali per filtri o paginazione.
+\end{itemize}
+
+\begin{verbatim}
+// Parametro di route
+this.route.params.subscribe(params => {
+console.log(params['id']);
+});
+
+// Query params
+this.route.queryParams.subscribe(q => {
+console.log(q['filter']);
+});
+\end{verbatim}
+
+
+
+\section{Gestione dello Stato Complesso in Angular}
+
+Gestire lo stato di un’applicazione complessa è fondamentale per mantenere dati sincronizzati tra componenti, ridurre bug e semplificare la manutenzione.
+
+\subsection{Strategie di Gestione dello Stato}
+\begin{itemize}
+\item \textbf{Servizi Singleton}: memorizzano lo stato condiviso usando variabili interne o \texttt{BehaviorSubject}/\texttt{Subject}.
+\item \textbf{State Management Library}: librerie come NgRx, Akita o NGXS per gestire lo stato con pattern Redux.
+\item \textbf{LocalStorage / SessionStorage}: persistenza dei dati lato client.
+\end{itemize}
+
+\subsection{Servizi con BehaviorSubject}
+\begin{itemize}
+\item Utilizzabile per condividere dati tra componenti parent/child o componenti non correlati.
+\item Permette di osservare cambiamenti dello stato in tempo reale tramite Observable.
+\end{itemize}
+
+\begin{verbatim}
+@Injectable({ providedIn: 'root' })
+export class StateService {
+private userSubject = new BehaviorSubject<User | null>(null);
+user$ = this.userSubject.asObservable();
+
+setUser(user: User) {
+this.userSubject.next(user);
+}
+
+getUser(): User | null {
+return this.userSubject.value;
+}
+}
+\end{verbatim}
+
+\subsection{Integrazione con componenti}
+\begin{itemize}
+\item \textbf{Parent/Child}: il componente figlio si iscrive all’Observable per aggiornamenti automatici.
+\item \textbf{Componenti non correlati}: qualsiasi componente può iniettare il servizio e osservare i dati.
+\end{itemize}
+
+\begin{verbatim}
+// child.component.ts
+this.stateService.user$.subscribe(user => {
+this.user = user;
+});
+\end{verbatim}
+
+\subsection{NgRx / Redux pattern}
+\begin{itemize}
+\item Basato su \textbf{Store}, \textbf{Actions}, \textbf{Reducers} e \textbf{Selectors}.
+\item Vantaggi: predicibilità, time-travel debugging, gestione complessa dello stato globale.
+\end{itemize}
+
+\begin{verbatim}
+// Definizione action
+export const loadUsers = createAction('[User] Load Users');
+
+// Definizione reducer
+export const userReducer = createReducer(
+initialState,
+on(loadUsersSuccess, (state, { users }) => ({ ...state, users }))
+);
+
+// Selettore
+export const selectUsers = (state: AppState) => state.users;
+\end{verbatim}
+
+\subsection{Best Practices nella gestione dello stato}
+\begin{itemize}
+\item Separare lo stato globale da quello locale del componente.
+\item Usare Observable e AsyncPipe per evitare subscribe manuali non necessari.
+\item Pulire sempre le subscription in \texttt{ngOnDestroy}.
+\item Scegliere librerie di gestione dello stato solo se l’app diventa complessa.
+\item Evitare modifiche dirette allo stato: usare sempre metodi del servizio o dispatch di action.
+\end{itemize}
+
+
+
+\section{Animazioni in Angular}
+
+Angular offre un modulo dedicato \texttt{@angular/animations} per gestire animazioni fluide su componenti e elementi HTML, rendendo l’esperienza utente più dinamica.
+
+\subsection{Importare il modulo Animations}
+\begin{verbatim}
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+@NgModule({
+imports: [
+BrowserAnimationsModule,
+...
+]
+})
+export class AppModule { }
+\end{verbatim}
+
+\subsection{Definizione di animazioni}
+\begin{itemize}
+\item Usare il decoratore \texttt{@Component} con la proprietà \texttt{animations}.
+\item Importare funzioni da \texttt{@angular/animations}: \texttt{trigger}, \texttt{state}, \texttt{style}, \texttt{transition}, \texttt{animate}, \texttt{keyframes}.
+\end{itemize}
+
+\begin{verbatim}
+import { trigger, state, style, transition, animate } from '@angular/animations';
+
+@Component({
+selector: 'app-box',
+templateUrl: './box.component.html',
+styleUrls: ['./box.component.css'],
+animations: [
+trigger('openClose', [
+state('open', style({ height: '200px', opacity: 1 })),
+state('closed', style({ height: '100px', opacity: 0.5 })),
+transition('open <=> closed', [animate('0.5s ease-in-out')])
+])
+]
+})
+export class BoxComponent {
+isOpen = true;
+
+toggle() {
+this.isOpen = !this.isOpen;
+}
+}
+\end{verbatim}
+
+\subsection{Usare le animazioni nel template}
+\begin{verbatim}
+
+<div [@openClose]="isOpen ? 'open' : 'closed'" class="box">
+  Contenuto animato
+</div>
+<button (click)="toggle()">Toggle</button>
+\end{verbatim}
+
+\subsection{Animazioni basate su trigger multipli}
+\begin{itemize}
+\item È possibile definire più trigger nello stesso componente.
+\item Esempio: animazione di entrata e uscita con \texttt{*ngIf}.
+\end{itemize}
+
+\begin{verbatim}
+trigger('fadeInOut', [
+transition(':enter', [
+style({ opacity: 0 }),
+animate('300ms', style({ opacity: 1 }))
+]),
+transition(':leave', [
+animate('300ms', style({ opacity: 0 }))
+])
+])
+\end{verbatim}
+
+\subsection{Keyframes e animazioni complesse}
+\begin{verbatim}
+trigger('bounce', [
+transition('* => *', [
+animate('1s', keyframes([
+style({ transform: 'translateY(0)', offset: 0 }),
+style({ transform: 'translateY(-30px)', offset: 0.5 }),
+style({ transform: 'translateY(0)', offset: 1.0 })
+]))
+])
+])
+\end{verbatim}
+
+\subsection{Stati dinamici e parametri}
+\begin{itemize}
+\item Possibile passare parametri dinamici alle animazioni.
+\end{itemize}
+
+\begin{verbatim}
+trigger('openClose', [
+state('open', style({ height: '{{height}}', opacity: '{{opacity}}' }), { params: { height: '200px', opacity: 1 } }),
+state('closed', style({ height: '100px', opacity: 0.5 })),
+transition('open <=> closed', [animate('0.5s ease-in-out')])
+])
+\end{verbatim}
+
+\subsection{Best Practices Animazioni Angular}
+\begin{itemize}
+\item Preferire animazioni leggere per non degradare le performance.
+\item Usare \texttt{:enter} e \texttt{:leave} per animazioni di componenti dinamici.
+\item Riutilizzare trigger di animazione per uniformità UI.
+\item Evitare animazioni complesse in loop intensi o tabelle grandi.
+\item Testare le animazioni su diversi browser e dispositivi.
+\end{itemize}
+
+
+\subsection{Stati dinamici e parametri}
+\begin{itemize}
+\item Possibile passare parametri dinamici alle animazioni.
+\item Utile per altezza, opacità o durata che cambiano in base a dati runtime.
+\end{itemize}
+
+\begin{verbatim}
+trigger('openClose', [
+state('open', style({ height: '{{height}}', opacity: '{{opacity}}' }),
+{ params: { height: '200px', opacity: 1 } }),
+state('closed', style({ height: '100px', opacity: 0.5 })),
+transition('open <=> closed', [animate('0.5s ease-in-out')])
+])
+\end{verbatim}
+
+\subsection{Best Practices Animazioni Angular}
+\begin{itemize}
+\item Preferire animazioni leggere per non degradare le performance.
+\item Usare \texttt{:enter} e \texttt{:leave} per animazioni di componenti dinamici.
+\item Riutilizzare trigger di animazione per uniformità UI.
+\item Evitare animazioni complesse in loop intensi o tabelle grandi.
+\item Testare le animazioni su diversi browser e dispositivi.
+\item Documentare trigger e parametri per facilitare manutenzione.
+\end{itemize}
+
+
+\subsection{Stati dinamici e parametri}
+\begin{itemize}
+\item Possibile passare parametri dinamici alle animazioni.
+\item Utile per altezza, opacità o durata che cambiano in base a dati runtime.
+\end{itemize}
+
+\begin{verbatim}
+trigger('openClose', [
+state('open', style({ height: '{{height}}', opacity: '{{opacity}}' }),
+{ params: { height: '200px', opacity: 1 } }),
+state('closed', style({ height: '100px', opacity: 0.5 })),
+transition('open <=> closed', [animate('0.5s ease-in-out')])
+])
+\end{verbatim}
+
+\subsection{Best Practices Animazioni Angular}
+\begin{itemize}
+\item Preferire animazioni leggere per non degradare le performance.
+\item Usare \texttt{:enter} e \texttt{:leave} per animazioni di componenti dinamici.
+\item Riutilizzare trigger di animazione per uniformità UI.
+\item Evitare animazioni complesse in loop intensi o tabelle grandi.
+\item Testare le animazioni su diversi browser e dispositivi.
+\item Documentare trigger e parametri per facilitare manutenzione.
+\end{itemize}
+
+
+\section{Gestione della Logica Asincrona con RxJS}
+
+Angular utilizza RxJS (Reactive Extensions for JavaScript) per gestire dati asincroni, flussi di eventi e comunicazione tra componenti in modo reattivo.
+
+\subsection{Concetti fondamentali di RxJS}
+
+\begin{itemize}
+\item \textbf{Observable}: rappresenta un flusso di dati che può emettere valori nel tempo.
+\item \textbf{Observer}: oggetto che riceve i valori emessi da un Observable.
+\item \textbf{Subscription}: gestisce l’iscrizione a un Observable e permette di annullarla.
+\item \textbf{Operators}: funzioni per trasformare, filtrare o combinare flussi di dati (\texttt{map}, \texttt{filter}, \texttt{mergeMap}, \texttt{switchMap}, ecc.).
+\end{itemize}
+
+\subsection{Creare un Observable}
+\begin{verbatim}
+import { Observable } from 'rxjs';
+
+const obs = new Observable<number>(observer => {
+observer.next(1);
+observer.next(2);
+observer.complete();
+});
+
+obs.subscribe({
+next: value => console.log(value),
+error: err => console.error(err),
+complete: () => console.log('Completato')
+});
+\end{verbatim}
+
+\subsection{Uso dei Subject}
+\begin{itemize}
+\item \texttt{Subject} è sia un Observable che un Observer.
+\item Permette di multicasting dei valori a più subscribers.
+\end{itemize}
+
+\begin{verbatim}
+import { Subject } from 'rxjs';
+
+const subject = new Subject<number>();
+subject.subscribe(value => console.log('Subscriber 1:', value));
+subject.subscribe(value => console.log('Subscriber 2:', value));
+
+subject.next(1);
+subject.next(2);
+\end{verbatim}
+
+\subsection{BehaviorSubject e State Management}
+\begin{itemize}
+\item \texttt{BehaviorSubject} mantiene sempre l’ultimo valore emesso.
+\item Ideale per condividere stato tra componenti.
+\end{itemize}
+
+\begin{verbatim}
+import { BehaviorSubject } from 'rxjs';
+
+const state$ = new BehaviorSubject<number>(0);
+
+state$.subscribe(value => console.log('Subscriber A:', value));
+state$.next(1);
+state$.subscribe(value => console.log('Subscriber B:', value)); // riceve subito 1
+\end{verbatim}
+
+\subsection{Operators comuni}
+
+\begin{itemize}
+\item \texttt{map}: trasforma valori
+\item \texttt{filter}: filtra valori
+\item \texttt{tap}: esegue side-effect senza modificare il flusso
+\item \texttt{switchMap}: cancella flussi precedenti e ne sottoscrive uno nuovo (utile per chiamate HTTP)
+\item \texttt{mergeMap / concatMap}: unisce flussi senza cancellare quelli precedenti
+\item \texttt{catchError}: gestione errori
+\end{itemize}
+
+\begin{verbatim}
+import { of } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
+
+of(1, 2, 3, 4).pipe(
+filter(x => x % 2 === 0),
+map(x => x * 10)
+).subscribe(console.log); // Output: 20, 40
+\end{verbatim}
+
+\subsection{Gestione chiamate HTTP con RxJS}
+\begin{verbatim}
+this.http.get('/api/users').pipe(
+map(users => users.filter(u => u.active)),
+catchError(err => {
+console.error(err);
+return of([]); // valore di fallback
+})
+).subscribe(activeUsers => console.log(activeUsers));
+\end{verbatim}
+
+\subsection{Comunicazione tra componenti con RxJS}
+
+\begin{itemize}
+\item Creare un servizio con \texttt{BehaviorSubject} per condividere dati tra componenti non parent-child.
+\end{itemize}
+
+\begin{verbatim}
+// state.service.ts
+@Injectable({ providedIn: 'root' })
+export class StateService {
+private user$ = new BehaviorSubject<User | null>(null);
+
+setUser(user: User) { this.user$.next(user); }
+getUser() { return this.user$.asObservable(); }
+}
+
+// componentA.ts
+this.stateService.setUser({ name: 'Mario' });
+
+// componentB.ts
+this.stateService.getUser().subscribe(user => console.log(user));
+\end{verbatim}
+
+\subsection{Best Practices RxJS in Angular}
+
+\begin{itemize}
+\item Usare \texttt{async pipe} nel template per sottoscrizioni automatiche.
+\item Pulire sempre le sottoscrizioni nei componenti con \texttt{takeUntil} o annullando \texttt{Subscription} in \texttt{ngOnDestroy}.
+\item Preferire operators come \texttt{switchMap} per evitare chiamate HTTP concorrenti inutili.
+\item Combinare flussi con \texttt{combineLatest}, \texttt{forkJoin} o \texttt{zip} quando necessario.
+\item Tenere la logica reattiva nel servizio e mantenere i componenti “leggeri”.
+\end{itemize}
+
+
+
+
+\end{document}

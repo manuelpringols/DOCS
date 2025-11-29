@@ -1,0 +1,1233 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage[dvipsnames,svgnames,x11names]{xcolor}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{textcomp}
+\usepackage{sectsty}
+\usepackage{tikz}
+\usepackage{tocloft}
+
+\usepackage{fancyhdr}
+
+\usepackage{titlesec}
+\usepackage{xcolor}
+
+\titleformat{\subsection}  % ridefinisce il formato delle sottosezioni
+  {\normalfont\Large\bfseries\color{subsectioncolor}} % stile del titolo + colore
+  {\thesubsection}             % numero della sottosezione
+  {1em}                        % spazio tra numero e titolo
+  {}                            % codice prima del titolo
+  [\vspace{0.2em}\color{sectioncolor}\rule{\linewidth}{1pt}\vspace{0.5em}] % linea bianca dopo il titolo
+
+\fancyhf{} % cancella header e footer di default
+\renewcommand{\headrulewidth}{0pt} % niente linea in alto
+\renewcommand{\footrulewidth}{0pt} % niente linea in basso
+
+% Footer
+\fancyfoot[C]{\textcolor{subsectioncolor}{\thepage}} % numero di pagina al centro in bianco
+\fancyfoot[R]{\hyperlink{toc}{\textcolor{sectioncolor}{\textbf{I}}}} % link all'indice a destra in bianco
+
+
+
+
+\usetikzlibrary{shapes, arrows}
+
+% Margini
+\geometry{margin=1.5cm}
+
+% Colori dark
+\definecolor{darkbg}{HTML}{0D1117}
+\definecolor{lighttext}{HTML}{E6EDF3}
+\definecolor{sectioncolor}{HTML}{FF5555}     % rosso per section
+\definecolor{subsectioncolor}{HTML}{58A6FF}  % blu per subsection
+\definecolor{linkcolor}{HTML}{FF5555}        % link section rosso
+\definecolor{urllink}{HTML}{58A6FF}          % link esterni blu
+
+% Tema scuro
+\makeatletter
+\AtBeginDocument{%
+  \pagecolor{darkbg}%
+  \color{lighttext}%
+}
+\makeatother
+
+% Titoli
+\sectionfont{\color{sectioncolor}}       % Sezioni rosse
+\subsectionfont{\color{subsectioncolor}} % Sottosezioni blu
+
+
+% TOC
+\renewcommand{\cftsecfont}{\color{sectioncolor}}       
+\renewcommand{\cftsubsecfont}{\color{subsectioncolor}}
+\renewcommand{\cftsubsubsecfont}{\color{subsectioncolor}}
+
+
+
+
+% Link
+\hypersetup{hidelinks} 
+
+
+% Spaziatura tabelle
+\setlength{\extrarowheight}{2pt}
+
+\title{Guida Rapida a Spring Boot (Dark Edition)}
+\begin{document}
+\maketitle
+\renewcommand{\contentsname}{INDICE}
+\tableofcontents
+
+% Crea il target dell'indice
+\hypersetup{linkcolor=blue} % colore link
+
+\hypertarget{toc}{} % questo è il “target” a cui punta la I
+\newpage
+
+
+
+\section*{Introduzione} Spring Boot è un framework che semplifica in modo estremo lo sviluppo di applicazioni Java basate su Spring. L'obiettivo principale è ridurre al minimo la configurazione manuale, fornendo una serie di default intelligenti e un ecosistema modulare che permette di costruire API REST, gestire la sicurezza e interfacciarsi con database in modo rapido e consistente.
+
+A livello macroscopico, Spring Boot offre: \begin{itemize} \item \textbf{Auto-configurazione}: rileva automaticamente le dipendenze e configura i componenti principali. \item \textbf{Starter dependencies}: pacchetti ottimizzati che includono tutto ciò che serve per funzionalità specifiche. \item \textbf{Embedded server}: Tomcat, Jetty o Undertow già integrati per l'esecuzione immediata. \item \textbf{Integrazione fluida con Spring Data, Spring Security e altri moduli Spring}. \item \textbf{Facilitá di creazione di API REST} tramite controller e annotazioni intuitive. \end{itemize}
+Prima di proseguire, è utile chiarire due concetti fondamentali del mondo Spring:
+
+
+
+\subsection*{Dependency Injection (DI)} La Dependency Injection è un pattern che permette di delegare a Spring la creazione e la gestione delle dipendenze tra gli oggetti. Invece di istanziare manualmente le classi, è il container Spring a fornirle già pronte, semplificando il codice e migliorando la testabilità.
+
+\subsection*{Inversion of Control (IoC)} L'Inversion of Control è il principio secondo cui non è il codice dell'applicazione a controllare il flusso di creazione degli oggetti, ma è il container Spring a gestire tutto. L'applicazione quindi "cede il controllo" al framework, ottenendo configurazioni più pulite e modulari.
+
+Nei capitoli seguenti verranno aggiunte sezioni dedicate alle operazioni più comuni nello sviluppo con Spring Boot.
+
+\section{Creazione di un'API REST} In questa sezione viene mostrato come costruire un'API REST completa con Spring Boot, includendo entità, repository, servizio, controller, gestione delle eccezioni, logging e risposta HTTP strutturata. \subsection{Struttura generale dei componenti} Una tipica API Spring Boot segue questa architettura: \begin{itemize} \item \textbf{Entity}: rappresenta la tasbella del database. \item \textbf{Repository}: interfaccia per l'accesso ai dati tramite Spring Data JPA. \item \textbf{Service}: contiene la logica applicativa. \item \textbf{Controller}: espone le API REST. \item \textbf{Exception Handler}: gestisce errori e risposte HTTP custom. \item \textbf{Log}: utile per debug e monitoraggio. \end{itemize} \subsection{Esempio di Entity} \begin{verbatim} @Entity public class User { @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
+private String name;
+private String email;
+
+// getters e setters
+} \end{verbatim} \subsection{Repository} \begin{verbatim} public interface UserRepository extends JpaRepository<User, Long> { Optional<User> findByEmail(String email); } \end{verbatim} \subsection{Service} \begin{verbatim} @Service public class UserService {
+private final UserRepository repo;
+private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
+public UserService(UserRepository repo) {
+    this.repo = repo;
+}
+
+public User create(User u) {
+    log.info("Creazione utente: {}", u.getEmail());
+    return repo.save(u);
+}
+
+public User getById(Long id) {
+    return repo.findById(id)
+        .orElseThrow(() -> new NotFoundException("Utente non trovato"));
+}
+
+public List<User> getAll() {
+    return repo.findAll();
+}
+
+public User update(Long id, User u) {
+    User existing = getById(id);
+    existing.setName(u.getName());
+    existing.setEmail(u.getEmail());
+    return repo.save(existing);
+}
+
+public void delete(Long id) {
+    repo.delete(getById(id));
+}
+} \end{verbatim} \subsection{HTTP Controller} \begin{verbatim} @RestController @RequestMapping("/api/users") public class UserController {
+private final UserService service;
+
+public UserController(UserService service) {
+    this.service = service;
+}
+
+@PostMapping
+public ResponseEntity<User> create(@RequestBody User user) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user));
+}
+
+@GetMapping("/{id}")
+public ResponseEntity<User> get(@PathVariable Long id) {
+    return ResponseEntity.ok(service.getById(id));
+}
+
+@GetMapping
+public ResponseEntity<List<User>> getAll() {
+    return ResponseEntity.ok(service.getAll());
+}
+
+@PutMapping("/{id}")
+public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
+    return ResponseEntity.ok(service.update(id, user));
+}
+
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> delete(@PathVariable Long id) {
+    service.delete(id);
+    return ResponseEntity.noContent().build();
+}
+} \end{verbatim} \subsection{Gestione delle Eccezioni} \begin{verbatim} @ResponseStatus(HttpStatus.NOT_FOUND) public class NotFoundException extends RuntimeException { public NotFoundException(String msg) { super(msg); } } @ControllerAdvice public class GlobalExceptionHandler {
+@ExceptionHandler(NotFoundException.class)
+public ResponseEntity<Map<String, Object>> handleNotFound(NotFoundException ex) {
+    Map<String, Object> body = new HashMap<>();
+    body.put("error", ex.getMessage());
+    body.put("timestamp", LocalDateTime.now());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+}
+
+@ExceptionHandler(Exception.class)
+public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
+    Map<String, Object> body = new HashMap<>();
+    body.put("error", "Errore interno del server");
+    body.put("details", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+}
+} \end{verbatim} \subsection{Logging interno} Spring Boot usa SLF4J + Logback. Per loggare: \begin{verbatim} private static final Logger log = LoggerFactory.getLogger(NomeClasse.class); log.info("Messaggio informativo"); log.error("Errore", exception); \end{verbatim}
+
+\subsection{Data Transfer Object (DTO)}
+I DTO (Data Transfer Object) sono classi utilizzate per trasferire dati tra i vari livelli dell'applicazione. 
+Servono a:
+\begin{itemize}
+    \item Separare i modelli interni (Entity) dalla rappresentazione esterna esposta tramite API.
+    \item Evitare di esporre campi sensibili o non necessari.
+    \item Validare correttamente i dati in ingresso.
+    \item Ridurre gli accoppiamenti e rendere più semplice cambiare struttura interna senza rompere il contratto dell'API.
+\end{itemize}
+
+\subsubsection{Esempio DTO}
+\begin{verbatim}
+public class UserDTO {
+    @NotBlank(message = "Username obbligatorio")
+    private String username;
+
+    @Email(message = "Email non valida")
+    private String email;
+}
+\end{verbatim}
+
+\subsection{Validazione dei dati}
+Spring utilizza la libreria Jakarta Validation per applicare vincoli ai campi dei DTO e delle Entity.
+
+\subsubsection{Annotazioni comuni}
+\begin{itemize}
+    \item \texttt{@NotBlank} -- il campo non può essere vuoto.
+    \item \texttt{@Email} -- deve essere un indirizzo email valido.
+    \item \texttt{@Size(min, max)} -- lunghezza minima e massima.
+    \item \texttt{@Positive} -- deve essere maggiore di zero.
+    \item \texttt{@Past / @Future} -- date temporali.
+\end{itemize}
+
+\subsubsection{Esempio Controller con validazione}
+\begin{verbatim}
+@PostMapping("/users")
+public ResponseEntity<UserDTO> create(@Valid @RequestBody UserDTO dto) {
+    return ResponseEntity.ok(service.createUser(dto));
+}
+\end{verbatim}
+
+\subsubsection{Gestione errori di validazione}
+\begin{verbatim}
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(err ->
+            errors.put(err.getField(), err.getDefaultMessage())
+        );
+        return ResponseEntity.badRequest().body(errors);
+    }
+}
+\end{verbatim}
+
+\subsection{Relazioni tra Entity}
+Le relazioni definiscono come le entità sono collegate nel database. Spring Data JPA usa le annotazioni di JPA per descriverle.
+
+\subsubsection{One-to-One}
+Relazione uno a uno: un record è collegato ad un solo altro record.
+
+\begin{verbatim}
+@Entity
+public class UserProfile {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    private String bio;
+
+    @OneToOne
+    @JoinColumn(name="user_id")
+    private User user;
+}
+\end{verbatim}
+
+\subsubsection{One-to-Many}
+Relazione uno-a-molti: una entità possiede una lista di entità correlate.
+
+\begin{verbatim}
+@Entity
+public class User {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+    private List<Post> posts = new ArrayList<>();
+}
+\end{verbatim}
+
+\begin{verbatim}
+@Entity
+public class Post {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    @ManyToOne
+    private User user;
+}
+\end{verbatim}
+
+\subsubsection{Many-to-Many}
+Relazione molti-a-molti con tabella ponte.
+
+\begin{verbatim}
+@Entity
+public class Student {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    @ManyToMany
+    @JoinTable(
+        name = "student_course",
+        joinColumns = @JoinColumn(name="student_id"),
+        inverseJoinColumns = @JoinColumn(name="course_id")
+    )
+    private Set<Course> courses;
+}
+\end{verbatim}
+
+\subsection{Mapping tra DTO ed Entity}
+È importante separare DTO ed Entity. La conversione può essere fatta:
+
+\begin{itemize}
+    \item Manualmente tramite metodi dedicati.
+    \item Automaticamente tramite MapStruct.
+\end{itemize}
+
+\subsubsection{Esempio mapping manuale}
+\begin{verbatim}
+public User toEntity(UserDTO dto) {
+    User u = new User();
+    u.setUsername(dto.getUsername());
+    u.setEmail(dto.getEmail());
+    return u;
+}
+
+public UserDTO toDTO(User u) {
+    UserDTO dto = new UserDTO();
+    dto.setUsername(u.getUsername());
+    dto.setEmail(u.getEmail());
+    return dto;
+}
+\end{verbatim}
+
+\subsubsection{Esempio mapping automatico con MapStruct}
+MapStruct genera automaticamente i metodi per convertire Entity in DTO e viceversa, eliminando il codice manuale.
+
+\paragraph{Mapper Interface}
+\begin{verbatim}
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+
+    UserDTO toDTO(User user);
+
+    User toEntity(UserDTO dto);
+
+    List<UserDTO> toDTOList(List<User> users);
+}
+\end{verbatim}
+
+\paragraph{Uso nel Service}
+\begin{verbatim}
+@Service
+public class UserService {
+
+    private final UserRepository repo;
+    private final UserMapper mapper;
+
+    public UserService(UserRepository repo, UserMapper mapper) {
+        this.repo = repo;
+        this.mapper = mapper;
+    }
+
+    public UserDTO getUser(Long id) {
+        User user = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User non trovato"));
+        return mapper.toDTO(user);
+    }
+
+    public UserDTO createUser(UserDTO dto) {
+        User user = mapper.toEntity(dto);
+        User saved = repo.save(user);
+        return mapper.toDTO(saved);
+    }
+}
+\end{verbatim}
+
+\paragraph{Vantaggi}
+\begin{itemize}
+    \item Niente codice boilerplate manuale
+    \item Conversione veloce e sicura a compile-time
+    \item Supporta anche liste e mappature complesse
+\end{itemize}
+
+
+\subsection{Controller e API REST}
+
+\subsubsection{Principali annotazioni Spring Web}
+\begin{itemize}
+    \item \texttt{@RestController}: combina \texttt{@Controller} e \texttt{@ResponseBody}.
+    \item \texttt{@RequestMapping}: mappa un path base per tutte le rotte del controller.
+    \item \texttt{@GetMapping}, \texttt{@PostMapping}, \texttt{@PutMapping}, \texttt{@DeleteMapping}: mappano i metodi HTTP specifici.
+    \item \texttt{@PathVariable}: estrae variabili dai path.
+    \item \texttt{@RequestParam}: estrae parametri query string.
+    \item \texttt{@RequestBody}: deserializza il body JSON in oggetti Java.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+ %@.+++================================++***+++============================--------------------::::::::::::::::::::::::::::::::::-----------:::::::::::::=++-:-----------------------
+ %@.+++================================++**+=+==============================---------------:--:::::::::::::::::::::::::::::::::::::---------:::::--:::::::=+=------------------------
+ %@.+++================================++**+=+=======++=====+++++++========--======--------------:::::::::::::::::::::::::::::::::::----------::----::::::-=+------------------------
+ %@.+++===============================++**+++++++=++++++++++++++++++++=========-=----------------:::::::::::::::::::::::::::::::::::-----------------::::::-++-----------------------
+ %@:+++===============================++*++++++++++++++++++++++++++++++=======--==------------------:::::::::::::::::::::::::::::::::-------------------:-:--==----------------------
+ %@:+++===============================+*+++++++++++++++++++++++++++++++=======--=---=----------:::::::::::::::::::::::::::::::::::::-----------------------:--==---------------------
+ %@:+++==============================++*++++++++++++++++++++++++++++++++=========-----:::---------------::::::::::::::::::::::::::----------------------------==---------------------
+ %@:+++==============================+**+++++****+++++++++++++*+++++++++==+===--=------------:::::--------:::::::::::::::::::::::::-::::---:-------------------==--------------------
+ %@:+++==============================****+++*****++++++++++++++++++++++++++=====----------::::::::::------::::::::::::::::::::::::::::::::::-------------------==--------------------
+ %@:+++=============================+***************++++++++++*++++++++++++=====---------:::::::::::::::::::::::::::::::::::::::::::::::::::::------------------=--------------------
+ %@:+++=============================+**********+****+++++++++++++++++++++++======-------::::::::::::::::::::::::::::::::::::::::::::::::::::::::----------------==-------------------
+ %@:++++============================*****************+++++++++++++++++++++======-----------::::::::::::::::---::::::::::::::::::::::::::::::::::::--------------==-------------------
+ %@:++++===========================+*#*****************++++++++++++++++=======--------------:::::::::::::-:---::::::::::::::::::::::::::::::::---::-------------==-------------------
+ %@:++++===========================+##******************+++++++++++++++++====--=-------------:::::::::--------::::::::::::::::::::::::::::::::::-:::-----------===-------------------
+ %@:+++++==========================+#*******************+++++++******+**+====-===--===-=----------:--:------:-::::::-::--==------::::::::::::::::::::-----------==-:-----------------
+ %@:+++++==========================*##******************++++++**#***+++++========--==--==---------::--------:----==++===+**###*++==========--:::::::::----------===------------------
+ %@:+++++==========================*###****************+++*******+++++++==================--------:---------:---==+++++=+*#####*++++*++++=====---::::::---------===------------------
+ %@:+++++==========================*#####****###**************++++=========+++****+*+++++===------::--------:---===+**+++***********#***++======---:::::--------===------------------
+ %@:++++===========================*%####********#****##*****+++=====++++**##%%%%###****++==----------------:---=====++===++++++######++==+++========--::::-----===------------------
+ %@:+++++==========================*########*****#***##***++==+++++++****#####%#%%%##***+++=----------::----::::--===+=-=====++**++===-------===========-:::----==+------------------
+ %@:+++++==========================*########*****#**##*++==++++++*****#########%######**++++=====-----:::---::::::----------==========------------=======--:::--==+------------------
+ %@:+++++==========================*%########****###****+=+++++****+******#####**********+++=======----:::::::::::------====+++======------------------=----:::-==+=-----------------
+ %@:+++++==========================*%#######***********+++*******++++++================++++====++====--::::::::::-----===++++++======---------------------:::::--=+=-----------------
+ %@:+++++==========================*%#######**********++*********+++++=======--------==++++++=++++++=--::::::::------=+++++++++++++++++===----------------::::::-=+=------::---------
+ %@:+++++==========================*%#######*******************++++++======-------------=++**+****++==-::::::::-----=++++++**######%%%%%%#****+==-------------:::-+==--::::::--------
+ %@:+++++==========================*######************#**********++++=====---------------=+**#####*++=-:::::::-----=++++++****#%%@@@%--##=-+#%#%%%#+=--------::::-+==--:-------------
+ %@:+++++==========================*#######********#####*********++++++=======+++++=======+*#%%%##*++=--::::::------=++*++**++*%%%@@@%%%#**#****+++**+===-----:::-=+=-:--------------
+ %@:+++++==========================+#%#####********#*##****************#########*+++++*****#%@%%%#*++=--::::::---===+++=*########****++========-======+++===---:::-+=----------------
+ %@:++++++=========================+#%#####****+*#**#***********###%%%%%%@@@#++%*=+*######%@@%%%%#*++=-:::::::---==---=+++++****+++++=------------====++++===--:::-=-----------------
+ %@:++++++=========================+*%#%##**+*++*####********#%##%%###%@@@@@%##%*=++*#%@%%#%%%%%%#*+++--::::::----==--====+++++++++++===-------==-======---===--:::-=::--------------
+ %@:++++++=========================+*#####*******#****+**++*%%%%%%%########**++++++++***######%%#***++=--:::::------====+++++++++++++========++=++=======----==-:::---:--------------
+ %@:+*++++===================+*+++++######******#******++*%%######*###*****++++====++++**##%%###*****++=-:::::-------=====+++==+++++++====--=+====---::::-----===-:---:--------------
+ %@:+*+++++=================+#%#**+**#####*++++*#*###########********+++++++++==++****####%####*******+=--:::::--------------=================-------:::::::::--==-::--:-:-----------
+ %@:+*+++++=================+#%%##***#%%%#*****#%%%%##*#*******##******++++**********######**********++=--::::::------------------==--===--------:::::::::::::::==-:------::---------
+ %@:+*+++++=================+#%%%%####%%%#**+++**#*+**#************#******************************++++=--::::::::::--------======--------::-:::::::::::::::::::::---:-----:::--------
+ %@:+*+++++=================+#%%%%#####%%#**+++***+##*+=====--=====++==+++++++++*+++++++*********++++==-:::::::::::::--:::::--------------::::::::::::::::::::::::::------:::--------
+ %@:+*+++++=================+#%%%%######%#*******#*++++++=---------=======++++++++++++++**+++++======--:::::::::::::---::::::::::::::::::::::::::::::::::::::::::::::------::--------
+ %@:+*+++++=================+#%%%######*##******#*+++++++==------------==========+++++++++++=+++++===--:::::::::::::-------------------:::::::::::::::::::::::::::::::-----::--------
+ %@:+*+++++=================+*%%##########***+*#*++*++===+==--:::::::--------==-====++++==++**+++++==--:::::::::::::----------====--------::::::::::::::::::::::::::::-----::--------
+ %@:+*+++++==================*%%#####%%###**+*#****+++++===----::--::::-----------====++*##**=++++++===--::::::::::::::::::::::--=++==-----:-:::::::::::::::::::::-----:-------------
+ %@:+*++++++=================+#####%%%%%##**+*#****+++++======---::::::::-------===+**###*======+++++==------::::::::::::::::::----=++++=------::::::::::::::::::::-------::---------
+ %@:**++++++=================+*###%%%%%%###**#****++++++=======---------------==++*####*========++++++==------:::::::::::::::::------=+**++===-::::::::::::::::::::--:---:::---------
+ %@:**++++++==================+*#%%%%%#*+*#**#***++++++++==========---------====+*%%%#*++++=++++++**++====----::::::::::::::::---------=+**+++==-::::::::::::::::::------:::---------
+ %@:**++++++==================+**##%%@#**###*****++++++++++=======-----------==+*#%%%*++**++++++******+++==----:::--::-----====----------=+***+==--::::::::::::::::----=:::----------
+ %@:**+++++++==================+**##%%#**###*********++++++++=======-------====+*####*******************++==----------=+**==++==-----------=+*#*+==---:::::::---:-:--===-::----------
+ %@:**+++++++===================+***##**####**#********+++++++=======-------===+**######*********###*****++===-----===+****++++++++=--------==+##*++=--:::::---------=-==------------
+ %@:**+++++++====================+**+++*########*********++++++======--------===++**#%%##*++*#%%@@@@@%%%#*+=======++=++****+++++====--===-===--=*##*+=---:::------=---=++-:----------
+ %@:**+++++++====================+**==+*########**********+++++======-----====+++++***#######%###%%%%%%%%%*+++++++++++*++******++++++=++===++====*#%*++=-------------==*+-:----------
+ %@:**++++++++==============+==+=++*+++***#%#########*****+++++=============++++++***##%%%%%%%%%%%#####****++==+++**************++****+***++*+++++*%%*++=--------==--=+*+------------
+ %@:+*++++++++==============+==+==++******#%%###########***++++==========+++**********###%%%%%%%%%%%##%##***++*####*************+******************#%%#*==-------==--=**+------------
+ %@:***+++++++===============+++=+++**#**##%%%%#########****+++=========+***###*#######%%%%%%%%%#%%%%#######**####*********++***++++++++++********#%%@%#+==-----===-==+**+==---------
+ %@:***+++++++=============++++++++++*###%%%%%%##########**++++=======+*#%%%%%###########%%%%%%%%%%%########***#%%###***+++===+=------=====++*****##%@@#*==----==+=-++****=----------
+ %@:***++++++++======++++++++++++++++*#++%%#%%%####%#####***+++=====+*#%%%%%%%%%####%%%%%%%%%#%%%#####%%%###**#%####*+==------------===--=-==+**+++*#%@%*==-==-=+*+===+***+=---------
+ %@:***++++++++++++++++++++++++++++++***%%##%%%%##%%%%###***+++=====*%@@@@@%%%%%%####%%%#%%#######******###******+===--------=-========++===-==+++***#%%*=--=-=++++==++***+----------
+ %@:****++++++++++++++++++++++++++++++**##*##%%%###%%%%%##*+++=====*%@@@@@@%%%%%%##########****++++++===++++++===============+=++*******++++++++++++*###*+=====+*+==+++**+-----------
+ %@:****+++++++++++++++++++++++++++++++*####%%@%%###%%%%##***+=====#@@@@%%%%%%#####***********+++++++++++++++++++=+++++=-=++=-:.:=++*#%%%%%%#*++*+++****+=====+=++-=+*+*+=-----------
+ %@:*****++++++++++++++++++++++++++++++**#%%%%@%%%%%#%%%%##**++==-=#@@@%%%%%%%###########***********++++++++++++=-::=*=-::--::...+%%%@@@@@@@%*+++++****+==-=++*+++=+=+***=-----------
+ %@:*****+++++++++++++++++++++++++++++++******%%%%%%%%%%%%%##*++=--+%%%########%%%%%####*#*******+++*#*+=-::-+==:...:--:...:.....+%@@@@@@@#*++=+++++++======+*++++=++****=-----------
+ %@:******++++++++++++++++++++++++++++++******#%%%%%%%%%%%%%##*+====*###*+*****#%%@@%%%%%#+==+*#*-:-=*+-:::.:--:.....::..........*%@@@@@%#*==+++**+========+**++++==+***+=-----------
+ %@:*******+++++++++++++++++++++++++++++******#%%%%%%%#%%%%%%##*+===*#******++*#%@@@@@@@@#+---=*=-:::+=::....::.................-**#@@%#*+-====+++++======+***++++++****+------------
+ %@:*******+++++++++++++++++++++++++++++******#%%%%%%%%%%%%%%%##**+==++**+**+*+*##%@@@@@@%*=-:-+==:::-=:::...::............:-===+####*++=------=+*+==+===+**+++==+++****=------------
+ %@:*******+++++++++++++++++++++++++++++*****###%%%%%%%%##%%%%%##***++**+++*******###%@@@@%+--:=+=-:--=----:-=+++***-:.::::::=*+****+++=-----====++=+===+**++=+++++*****=------------
+ %@:********++++++++++++++++++++++++++++*****###%%%%%%%%##%%%%%%%##**+*++*******+****##%%%%#+==+##***#+=-=+=-:*%*+=--::.:----=**+++====---------=++++====+*++=+++******+-------------
+ %@:********++++++++++++++++++++++++++++******###%%%%%%%%#%%%%%%%%%##*++=+*********######%###########*****++++**++==+=---+++++========------:--===+**+=+++*+===********=-------------
+ %@:********+++++++++++++++++++++++++++++*****###%@@%%%%%%##%%%%@@%%##****####*****##############*********+++++++=+++++======---===------------=====+=+**+*+++++****#*+--------------
+ %@:********++++++++++++++++++++++++++++******####%@%%%%%%%#%%%%%%%%%%########*****#***##########********+++++++==+++=====------=----------------=+++++****++**++*###*=--------------
+ %@:********++++++++++++++++++++++++++++******####%%%%%%%%%%%%%%%%@@@@%%######*****######*###***********++++++++==+====----------------==----====+++++*#*+*+++****###+---------------
+ %@:********+++++++++++++++++++++++++++*******#####%@@%%%%%%%%%%%%@@%%%%%%###########*****#***********+++++++==+======---:::::::-------------==+=+++++*****++****##*+=---------------
+ %@:*********++++++++++++++++++++++++++********#####%@@@@%%%%%%%%%%%%%%%%%%##########*###***************+++++++++++======-========------------=++++**+*********##%%*=----------------
+ %@:*********++++++++++++++++++++++++++*******#######%@@@%@@@%%%%%%%%%@%%%%#############*********###**#*####***#**++++**+++++=+==------------=+++*+***##*******##%#*===--------------
+ %@:*********++++++++++++++++++++++++++********######%@@@@@@@@@@@@%%%@@@@%%%%%######*******####*****#############****+******++====-------=====-=+++***###*##**##%%@@%#*+==-----------
+ %@:*********++++++++++++++++++++++++++++******#####%%@@@@@@@@@@@@@@@@%@@@@@%%%%%%###****************###***#######*++******++==-----:-:---=====+++=+#####*######%@@@@@@@%#+=---------
+ %@:*********+++++++++++++++++++++++++*******#####%%%%%@@@@@@@@@@@@@@@@@@@@@@%%%%%###***++********+****+***#####**+++++**====----::::---==--=+++*****####*#%%#***#%@@@@@@@@#*+==-----
+ %@:**********+++++++++++++++++++++++****####%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%####***+++++****+**************+++++====------:::----==++==++****##**##%%#+=====+*%@@@@@@@%##**++=
+ %@:**********+++++++++++++++++****####%%%%%%%@@@@@@@%@@@@@@@@@@@@@@@@@@@@@@@@@@%%#####*****++*****+++++*********++++++=----:-::-------=====+++**####%%#####+====----=+*#@@@@@%###%##
+ %@:**********++++++++++****#####%%%%%%%%@%%@@@@@@@@@@@@@@%@@@@@@@@@@@@@@@@@@@@@%@%#%#####***++++**+++++**+++++++======---------::---=====++++*****%##%%##*++====------==*#@@@%%%%%%%
+ %@:*************+****####%%%%%%%%%%%%%@@%@@@@@@@@@@@@@@@@@%%@@@@@@@@@@@@@@@@@@@@%%%######*******+++**++++++++++======--------------====+++++++*##*#%%##*+++=====--------=+*%@@%%%%%%
+ %@:*#*********#####%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@%%%@@@@@@@@@@@@@@@@@%@@%%%%%#####*********+++*++++============-----------==++*++++*###%%##+===+++===----------=+*%%%%%%%%
+ %@:############%%%%%%@@@@@@@@@@%%%%%%%%%@@@@@@@@@@@@@@@@@@@@%%%%%@@@@@@@@@@@@@@@@@@@@%###%##*********++++++++++========-===-:-:---===+++++++**#%%%#+=--=+++===-----------=+*#%%%%%%%
+ %@:#%#%%%%%%%%%%%%%@@@@@@@@@@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@%%%@%@%@@@@@@@@@@@@@@@@@@%%%%##%#####*##**+++++++++++++=--=--:--=-----===++++***###%%#+=-===+++==------------=+*#%%%%%%%
+ %@:#%%%%%%%%%%%%%@@@@@@@@@%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%@@%%%%%@@@@@@@@@@@@@@@@@%%%%%########*********++++==++=-==-------===++******#%%%%*=--====+++=-------------=+*#%%%%%%%
+ %@:#%%%%%%%%%%%%%%@@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%@%%%%%%@@@@@@@@@@@@@@@%%%%%%%########*******+++==+====++====---====***+*##%%#*+==--====+++=-------------=+*#%%%%%%%
+ %@:#%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%@@@@@@@@@@@@@@%%%%%%%%%%#####**+***+++=====++++==+=+===+++***##%%#*====--=++++++===------------=+*#%%%%%%%
+ %@:#%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%@@@@@@@@@@@@@%%%%%%%%%###**********++=======+**++**+++**##%%%#*+===--=+++=+++=--------------=+*#%%%%%%%
+ %@:%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@%%@%%########******+**+++++**++**+******#%%%#*+++=-=-==+++=+++=--------------+*#%%%%%%%%
+ %@:%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@%%%####**#######**++*+********######%#*++=========++++++++=-------------=+*#%%@%%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%@%%%%%%%%@@@@%%%@%%%%%@@@%%%%###########*****#****#######%%#*+==========+++=++++++=-------------=+##%%@@%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%@@%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%%%%%%@@@%%%%%%######**#############**#*+=========-=+*+++++++++=-------------+*#%%%@@%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%%%%%#############%##%###%%#*##########***++==++===========++++++=++++=------------=+#%%@@@@%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%@@@%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%%#%#%%%%###******++*******+****#**+==++=================+=+++++++++++==-----------=*#%@@@@@@%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%@@%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%@%%%%%%%%%%%%%%%%%%%%%%#######****+++++++++++++++========++==============+++++++++++++++==----------=+#%%%%%@@@%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%##%%%%%%%%%%%%######***++++++++++++++++=+++==++=+==============++++++++++++++===---------=+*%%%%%%%@%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%%%%%%%####*****+++++++=================++==-====-==+==++++++=+++++===---------=*%%%%%%%%%%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%############**+++++++==========================-==+===+++++++++++====--------=*#%@@@%%%%%%%%%
+ %@-%@%%%%%%%%%%%%%%%%@@%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%###%%%%%############**++++++=========================--=++=++++++++++++=====------==*#%@%%%%%%%%%%%%
+ %@-%@%%%%%%%%%%%%%%%@@@@@%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%######%%%%%#############**++++====================--====+++++++++++===++=====------=*#%%%%%%%%%%%%%%%%
+ %@-%@@%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%#######%##%%############**++===================-==---=++=++++++++=+++++===------==+#%%%%%%%%%%%%%%%%%
+ %@-%@@@%%%%%%%%%%%%%@@@@@@@%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%##########################*++=======+++===------====+++++===+++++===++=-===-----=+*#%%%%%%%%%%%%%%%%%%
+ %@-%@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%#################****####**+++==+*****+=-----==+++++=++++++++++=====-====-===+*%%%%%%%%%%%%%%%%%%%%%
+ %@-%@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%#%####################*******+++*****+***+=----++**+=+++++++++++====------==+*#%%%%%%%%%%%%%%%%%%%%%%%
+ %@:%@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%####################**+*+*******++*****+=-==++++++++++++++======-------+*#%%%%%%%%%%%%%%%%%%%%%%%%%
+ %@:%@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%#######################**+*###**+++++*****+++++++++++++++++=====------==+#%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Gestione delle Entità con Spring Data JPA}
+
+Spring Data JPA semplifica enormemente l'accesso ai database relazionali tramite JPA. Offre repository preconfigurati, query derivata dai nomi dei metodi, e supporta transazioni, paginazione, sorting e relazioni complesse.
+
+\subsection{Creazione di un'Entity}
+\begin{verbatim}
+@Entity
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(length = 500)
+    private String description;
+
+    private Double price;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt = new Date();
+
+    // getters e setters
+}
+\end{verbatim}
+
+\subsection{Repository Base}
+\begin{verbatim}
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    // Query derivata: trova prodotti per nome
+    List<Product> findByName(String name);
+
+    // Query derivata con condizioni
+    List<Product> findByPriceGreaterThan(Double price);
+
+    // Ordinamento automatico
+    List<Product> findAllByOrderByCreatedAtDesc();
+}
+\end{verbatim}
+
+\subsection{Query Personalizzate}
+\begin{verbatim}
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    @Query("SELECT p FROM Product p WHERE p.price > :minPrice")
+    List<Product> findExpensiveProducts(@Param("minPrice") Double minPrice);
+
+    // Native query
+    @Query(value = "SELECT * FROM product WHERE price < ?1", nativeQuery = true)
+    List<Product> findCheapProducts(Double price);
+}
+\end{verbatim}
+
+\subsection{Relazioni tra Entity}
+\begin{verbatim}
+// One-to-Many: un Category ha molti Products
+@Entity
+public class Category {
+    @Id @GeneratedValue
+    private Long id;
+
+    private String name;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    private List<Product> products = new ArrayList<>();
+}
+
+// Many-to-One nella Product
+@ManyToOne
+@JoinColumn(name = "category_id")
+private Category category;
+\end{verbatim}
+
+\subsection{Transazioni e gestione logica}
+\begin{verbatim}
+@Service
+@Transactional
+public class ProductService {
+
+    private final ProductRepository repo;
+
+    public ProductService(ProductRepository repo) {
+        this.repo = repo;
+    }
+
+    public Product create(Product p) {
+        return repo.save(p);
+    }
+
+    public void updatePrice(Long id, Double newPrice) {
+        Product p = repo.findById(id).orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
+        p.setPrice(newPrice);
+        // la transazione fa l'update automaticamente al commit
+    }
+
+    public void deleteProduct(Long id) {
+        repo.deleteById(id);
+    }
+}
+\end{verbatim}
+
+\subsection{Paginazione e Ordinamento}
+\begin{verbatim}
+Pageable pageable = PageRequest.of(0, 10, Sort.by("price").descending());
+Page<Product> page = repo.findAll(pageable);
+
+page.getContent().forEach(p -> System.out.println(p.getName()));
+\end{verbatim}
+
+\subsection{Custom Repository Implementation}
+\begin{verbatim}
+public interface ProductRepositoryCustom {
+    List<Product> findTopSellingProducts(int limit);
+}
+
+public class ProductRepositoryImpl implements ProductRepositoryCustom {
+
+    @PersistenceContext
+    private EntityManager em;
+
+    @Override
+    public List<Product> findTopSellingProducts(int limit) {
+        return em.createQuery("SELECT p FROM Product p ORDER BY p.sales DESC", Product.class)
+                 .setMaxResults(limit)
+                 .getResultList();
+    }
+}
+\end{verbatim}
+
+\subsection{Logica avanzata con Specification e Criteria API}
+\begin{verbatim}
+public class ProductSpecifications {
+
+    public static Specification<Product> hasMinPrice(Double price) {
+        return (root, query, cb) -> cb.greaterThan(root.get("price"), price);
+    }
+
+    public static Specification<Product> hasName(String name) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+    }
+}
+\end{verbatim}
+
+\subsection{Uso delle Specification nel Service}
+\begin{verbatim}
+List<Product> results = repo.findAll(
+    Specification.where(ProductSpecifications.hasMinPrice(100.0))
+                 .and(ProductSpecifications.hasName("laptop"))
+);
+\end{verbatim}
+
+
+\subsection{Entity, Repository e JPA}
+
+\subsubsection{Definizione e annotazioni principali}
+\begin{itemize}
+    \item \texttt{@Entity}: definisce una classe come entità JPA mappata su una tabella del database.
+    \item \texttt{@Table(name="nome\_tabella")}: opzionale, permette di specificare il nome della tabella.
+    \item \texttt{@Id}: identifica la chiave primaria dell'entità.
+    \item \texttt{@GeneratedValue(strategy = GenerationType.IDENTITY)}: definisce la strategia di generazione automatica dell'ID.
+    \item \texttt{@Column}: permette di configurare nome, lunghezza, nullable, unique, ecc.
+    \item \texttt{@OneToMany}, \texttt{@ManyToOne}, \texttt{@OneToOne}, \texttt{@ManyToMany}: definiscono relazioni tra entità.
+    \item \texttt{@JoinColumn}: specifica la colonna di join per relazioni.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%@.+++================================++***+++============================--------------------::::::::::::::::::::::::::::::::::-----------:::::::::::::=++-:-----------------------
+ %@.+++================================++**+=+==============================---------------:--:::::::::::::::::::::::::::::::::::::---------:::::--:::::::=+=------------------------
+ %@.+++================================++**+=+=======++=====+++++++========--======--------------:::::::::::::::::::::::::::::::::::----------::----::::::-=+------------------------
+ %@.+++===============================++**+++++++=++++++++++++++++++++=========-=----------------:::::::::::::::::::::::::::::::::::-----------------::::::-++-----------------------
+ %@:+++===============================++*++++++++++++++++++++++++++++++=======--==------------------:::::::::::::::::::::::::::::::::-------------------:-:--==----------------------
+ %@:+++===============================+*+++++++++++++++++++++++++++++++=======--=---=----------:::::::::::::::::::::::::::::::::::::-----------------------:--==---------------------
+ %@:+++==============================++*++++++++++++++++++++++++++++++++=========-----:::---------------::::::::::::::::::::::::::----------------------------==---------------------
+ %@:+++==============================+**+++++****+++++++++++++*+++++++++==+===--=------------:::::--------:::::::::::::::::::::::::-::::---:-------------------==--------------------
+ %@:+++==============================****+++*****++++++++++++++++++++++++++=====----------::::::::::------::::::::::::::::::::::::::::::::::-------------------==--------------------
+ %@:+++=============================+***************++++++++++*++++++++++++=====---------:::::::::::::::::::::::::::::::::::::::::::::::::::::------------------=--------------------
+ %@:+++=============================+**********+****+++++++++++++++++++++++======-------::::::::::::::::::::::::::::::::::::::::::::::::::::::::----------------==-------------------
+ %@:++++============================*****************+++++++++++++++++++++======-----------::::::::::::::::---::::::::::::::::::::::::::::::::::::--------------==-------------------
+ %@:++++===========================+*#*****************++++++++++++++++=======--------------:::::::::::::-:---::::::::::::::::::::::::::::::::---::-------------==-------------------
+ %@:++++===========================+##******************+++++++++++++++++====--=-------------:::::::::--------::::::::::::::::::::::::::::::::::-:::-----------===-------------------
+ %@:+++++==========================+#*******************+++++++******+**+====-===--===-=----------:--:------:-::::::-::--==------::::::::::::::::::::-----------==-:-----------------
+ %@:+++++==========================*##******************++++++**#***+++++========--==--==---------::--------:----==++===+**###*++==========--:::::::::----------===------------------
+ %@:+++++==========================*###****************+++*******+++++++==================--------:---------:---==+++++=+*#####*++++*++++=====---::::::---------===------------------
+ %@:+++++==========================*#####****###**************++++=========+++****+*+++++===------::--------:---===+**+++***********#***++======---:::::--------===------------------
+ %@:++++===========================*%####********#****##*****+++=====++++**##%%%%###****++==----------------:---=====++===++++++######++==+++========--::::-----===------------------
+ %@:+++++==========================*########*****#***##***++==+++++++****#####%#%%%##***+++=----------::----::::--===+=-=====++**++===-------===========-:::----==+------------------
+ %@:+++++==========================*########*****#**##*++==++++++*****#########%######**++++=====-----:::---::::::----------==========------------=======--:::--==+------------------
+ %@:+++++==========================*%########****###****+=+++++****+******#####**********+++=======----:::::::::::------====+++======------------------=----:::-==+=-----------------
+ %@:+++++==========================*%#######***********+++*******++++++================++++====++====--::::::::::-----===++++++======---------------------:::::--=+=-----------------
+ %@:+++++==========================*%#######**********++*********+++++=======--------==++++++=++++++=--::::::::------=+++++++++++++++++===----------------::::::-=+=------::---------
+ %@:+++++==========================*%#######*******************++++++======-------------=++**+****++==-::::::::-----=++++++**######%%%%%%#****+==-------------:::-+==--::::::--------
+ %@:+++++==========================*######************#**********++++=====---------------=+**#####*++=-:::::::-----=++++++****#%%@@@%--##=-+#%#%%%#+=--------::::-+==--:-------------
+ %@:+++++==========================*#######********#####*********++++++=======+++++=======+*#%%%##*++=--::::::------=++*++**++*%%%@@@%%%#**#****+++**+===-----:::-=+=-:--------------
+ %@:+++++==========================+#%#####********#*##****************#########*+++++*****#%@%%%#*++=--::::::---===+++=*########****++========-======+++===---:::-+=----------------
+ %@:++++++=========================+#%#####****+*#**#***********###%%%%%%@@@#++%*=+*######%@@%%%%#*++=-:::::::---==---=+++++****+++++=------------====++++===--:::-=-----------------
+ %@:++++++=========================+*%#%##**+*++*####********#%##%%###%@@@@@%##%*=++*#%@%%#%%%%%%#*+++--::::::----==--====+++++++++++===-------==-======---===--:::-=::--------------
+ %@:++++++=========================+*#####*******#****+**++*%%%%%%%########**++++++++***######%%#***++=--:::::------====+++++++++++++========++=++=======----==-:::---:--------------
+ %@:+*++++===================+*+++++######******#******++*%%######*###*****++++====++++**##%%###*****++=-:::::-------=====+++==+++++++====--=+====---::::-----===-:---:--------------
+ %@:+*+++++=================+#%#**+**#####*++++*#*###########********+++++++++==++****####%####*******+=--:::::--------------=================-------:::::::::--==-::--:-:-----------
+ %@:+*+++++=================+#%%##***#%%%#*****#%%%%##*#*******##******++++**********######**********++=--::::::------------------==--===--------:::::::::::::::==-:------::---------
+ %@:+*+++++=================+#%%%%####%%%#**+++**#*+**#************#******************************++++=--::::::::::--------======--------::-:::::::::::::::::::::---:-----:::--------
+ %@:+*+++++=================+#%%%%#####%%#**+++***+##*+=====--=====++==+++++++++*+++++++*********++++==-:::::::::::::--:::::--------------::::::::::::::::::::::::::------:::--------
+ %@:+*+++++=================+#%%%%######%#*******#*++++++=---------=======++++++++++++++**+++++======--:::::::::::::---::::::::::::::::::::::::::::::::::::::::::::::------::--------
+ %@:+*+++++=================+#%%%######*##******#*+++++++==------------==========+++++++++++=+++++===--:::::::::::::-------------------:::::::::::::::::::::::::::::::-----::--------
+ %@:+*+++++=================+*%%##########***+*#*++*++===+==--:::::::--------==-====++++==++**+++++==--:::::::::::::----------====--------::::::::::::::::::::::::::::-----::--------
+ %@:+*+++++==================*%%#####%%###**+*#****+++++===----::--::::-----------====++*##**=++++++===--::::::::::::::::::::::--=++==-----:-:::::::::::::::::::::-----:-------------
+ %@:+*++++++=================+#####%%%%%##**+*#****+++++======---::::::::-------===+**###*======+++++==------::::::::::::::::::----=++++=------::::::::::::::::::::-------::---------
+ %@:**++++++=================+*###%%%%%%###**#****++++++=======---------------==++*####*========++++++==------:::::::::::::::::------=+**++===-::::::::::::::::::::--:---:::---------
+ %@:**++++++==================+*#%%%%%#*+*#**#***++++++++==========---------====+*%%%#*++++=++++++**++====----::::::::::::::::---------=+**+++==-::::::::::::::::::------:::---------
+ %@:**++++++==================+**##%%@#**###*****++++++++++=======-----------==+*#%%%*++**++++++******+++==----:::--::-----====----------=+***+==--::::::::::::::::----=:::----------
+ %@:**+++++++==================+**##%%#**###*********++++++++=======-------====+*####*******************++==----------=+**==++==-----------=+*#*+==---:::::::---:-:--===-::----------
+ %@:**+++++++===================+***##**####**#********+++++++=======-------===+**######*********###*****++===-----===+****++++++++=--------==+##*++=--:::::---------=-==------------
+ %@:**+++++++====================+**+++*########*********++++++======--------===++**#%%##*++*#%%@@@@@%%%#*+=======++=++****+++++====--===-===--=*##*+=---:::------=---=++-:----------
+ %@:**+++++++====================+**==+*########**********+++++======-----====+++++***#######%###%%%%%%%%%*+++++++++++*++******++++++=++===++====*#%*++=-------------==*+-:----------
+ %@:**++++++++==============+==+=++*+++***#%#########*****+++++=============++++++***##%%%%%%%%%%%#####****++==+++**************++****+***++*+++++*%%*++=--------==--=+*+------------
+ %@:+*++++++++==============+==+==++******#%%###########***++++==========+++**********###%%%%%%%%%%%##%##***++*####*************+******************#%%#*==-------==--=**+------------
+ %@:***+++++++===============+++=+++**#**##%%%%#########****+++=========+***###*#######%%%%%%%%%#%%%%#######**####*********++***++++++++++********#%%@%#+==-----===-==+**+==---------
+ %@:***+++++++=============++++++++++*###%%%%%%##########**++++=======+*#%%%%%###########%%%%%%%%%%%########***#%%###***+++===+=------=====++*****##%@@#*==----==+=-++****=----------
+ %@:***++++++++======++++++++++++++++*#++%%#%%%####%#####***+++=====+*#%%%%%%%%%####%%%%%%%%%#%%%#####%%%###**#%####*+==------------===--=-==+**+++*#%@%*==-==-=+*+===+***+=---------
+ %@:***++++++++++++++++++++++++++++++***%%##%%%%##%%%%###***+++=====*%@@@@@%%%%%%####%%%#%%#######******###******+===--------=-========++===-==+++***#%%*=--=-=++++==++***+----------
+ %@:****++++++++++++++++++++++++++++++**##*##%%%###%%%%%##*+++=====*%@@@@@@%%%%%%##########****++++++===++++++===============+=++*******++++++++++++*###*+=====+*+==+++**+-----------
+ %@:****+++++++++++++++++++++++++++++++*####%%@%%###%%%%##***+=====#@@@@%%%%%%#####***********+++++++++++++++++++=+++++=-=++=-:.:=++*#%%%%%%#*++*+++****+=====+=++-=+*+*+=-----------
+ %@:*****++++++++++++++++++++++++++++++**#%%%%@%%%%%#%%%%##**++==-=#@@@%%%%%%%###########***********++++++++++++=-::=*=-::--::...+%%%@@@@@@@%*+++++****+==-=++*+++=+=+***=-----------
+ %@:*****+++++++++++++++++++++++++++++++******%%%%%%%%%%%%%##*++=--+%%%########%%%%%####*#*******+++*#*+=-::-+==:...:--:...:.....+%@@@@@@@#*++=+++++++======+*++++=++****=-----------
+ %@:******++++++++++++++++++++++++++++++******#%%%%%%%%%%%%%##*+====*###*+*****#%%@@%%%%%#+==+*#*-:-=*+-:::.:--:.....::..........*%@@@@@%#*==+++**+========+**++++==+***+=-----------
+ %@:*******+++++++++++++++++++++++++++++******#%%%%%%%#%%%%%%##*+===*#******++*#%@@@@@@@@#+---=*=-:::+=::....::.................-**#@@%#*+-====+++++======+***++++++****+------------
+ %@:*******+++++++++++++++++++++++++++++******#%%%%%%%%%%%%%%%##**+==++**+**+*+*##%@@@@@@%*=-:-+==:::-=:::...::............:-===+####*++=------=+*+==+===+**+++==+++****=------------
+ %@:*******+++++++++++++++++++++++++++++*****###%%%%%%%%##%%%%%##***++**+++*******###%@@@@%+--:=+=-:--=----:-=+++***-:.::::::=*+****+++=-----====++=+===+**++=+++++*****=------------
+ %@:********++++++++++++++++++++++++++++*****###%%%%%%%%##%%%%%%%##**+*++*******+****##%%%%#+==+##***#+=-=+=-:*%*+=--::.:----=**+++====---------=++++====+*++=+++******+-------------
+ %@:********++++++++++++++++++++++++++++******###%%%%%%%%#%%%%%%%%%##*++=+*********######%###########*****++++**++==+=---+++++========------:--===+**+=+++*+===********=-------------
+ %@:********+++++++++++++++++++++++++++++*****###%@@%%%%%%##%%%%@@%%##****####*****##############*********+++++++=+++++======---===------------=====+=+**+*+++++****#*+--------------
+ %@:********++++++++++++++++++++++++++++******####%@%%%%%%%#%%%%%%%%%%########*****#***##########********+++++++==+++=====------=----------------=+++++****++**++*###*=--------------
+ %@:********++++++++++++++++++++++++++++******####%%%%%%%%%%%%%%%%@@@@%%######*****######*###***********++++++++==+====----------------==----====+++++*#*+*+++****###+---------------
+ %@:********+++++++++++++++++++++++++++*******#####%@@%%%%%%%%%%%%@@%%%%%%###########*****#***********+++++++==+======---:::::::-------------==+=+++++*****++****##*+=---------------
+ %@:*********++++++++++++++++++++++++++********#####%@@@@%%%%%%%%%%%%%%%%%%##########*###***************+++++++++++======-========------------=++++**+*********##%%*=----------------
+ %@:*********++++++++++++++++++++++++++*******#######%@@@%@@@%%%%%%%%%@%%%%#############*********###**#*####***#**++++**+++++=+==------------=+++*+***##*******##%#*===--------------
+ %@:*********++++++++++++++++++++++++++********######%@@@@@@@@@@@@%%%@@@@%%%%%######*******####*****#############****+******++====-------=====-=+++***###*##**##%%@@%#*+==-----------
+ %@:*********++++++++++++++++++++++++++++******#####%%@@@@@@@@@@@@@@@@%@@@@@%%%%%%###****************###***#######*++******++==-----:-:---=====+++=+#####*######%@@@@@@@%#+=---------
+ %@:*********+++++++++++++++++++++++++*******#####%%%%%@@@@@@@@@@@@@@@@@@@@@@%%%%%###***++********+****+***#####**+++++**====----::::---==--=+++*****####*#%%#***#%@@@@@@@@#*+==-----
+ %@:**********+++++++++++++++++++++++****####%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%####***+++++****+**************+++++====------:::----==++==++****##**##%%#+=====+*%@@@@@@@%##**++=
+ %@:**********+++++++++++++++++****####%%%%%%%@@@@@@@%@@@@@@@@@@@@@@@@@@@@@@@@@@%%#####*****++*****+++++*********++++++=----:-::-------=====+++**####%%#####+====----=+*#@@@@@%###%##
+ %@:**********++++++++++****#####%%%%%%%%@%%@@@@@@@@@@@@@@%@@@@@@@@@@@@@@@@@@@@@%@%#%#####***++++**+++++**+++++++======---------::---=====++++*****%##%%##*++====------==*#@@@%%%%%%%
+ %@:*************+****####%%%%%%%%%%%%%@@%@@@@@@@@@@@@@@@@@%%@@@@@@@@@@@@@@@@@@@@%%%######*******+++**++++++++++======--------------====+++++++*##*#%%##*+++=====--------=+*%@@%%%%%%
+ %@:*#*********#####%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@%%%@@@@@@@@@@@@@@@@@%@@%%%%%#####*********+++*++++============-----------==++*++++*###%%##+===+++===----------=+*%%%%%%%%
+ %@:############%%%%%%@@@@@@@@@@%%%%%%%%%@@@@@@@@@@@@@@@@@@@@%%%%%@@@@@@@@@@@@@@@@@@@@%###%##*********++++++++++========-===-:-:---===+++++++**#%%%#+=--=+++===-----------=+*#%%%%%%%
+ %@:#%#%%%%%%%%%%%%%@@@@@@@@@@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@%%%@%@%@@@@@@@@@@@@@@@@@@%%%%##%#####*##**+++++++++++++=--=--:--=-----===++++***###%%#+=-===+++==------------=+*#%%%%%%%
+ %@:#%%%%%%%%%%%%%@@@@@@@@@%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%@@%%%%%@@@@@@@@@@@@@@@@@%%%%%########*********++++==++=-==-------===++******#%%%%*=--====+++=-------------=+*#%%%%%%%
+ %@:#%%%%%%%%%%%%%%@@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%@%%%%%%@@@@@@@@@@@@@@@%%%%%%%########*******+++==+====++====---====***+*##%%#*+==--====+++=-------------=+*#%%%%%%%
+ %@:#%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%@@@@@@@@@@@@@@%%%%%%%%%%#####**+***+++=====++++==+=+===+++***##%%#*====--=++++++===------------=+*#%%%%%%%
+ %@:#%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%@@@@@@@@@@@@@%%%%%%%%%###**********++=======+**++**+++**##%%%#*+===--=+++=+++=--------------=+*#%%%%%%%
+ %@:%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@%%@%%########******+**+++++**++**+******#%%%#*+++=-=-==+++=+++=--------------+*#%%%%%%%%
+ %@:%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@%%%####**#######**++*+********######%#*++=========++++++++=-------------=+*#%%@%%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%@%%%%%%%%@@@@%%%@%%%%%@@@%%%%###########*****#****#######%%#*+==========+++=++++++=-------------=+##%%@@%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%@@%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%%%%%%@@@%%%%%%######**#############**#*+=========-=+*+++++++++=-------------+*#%%%@@%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%%%%%#############%##%###%%#*##########***++==++===========++++++=++++=------------=+#%%@@@@%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%@@@%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%%#%#%%%%###******++*******+****#**+==++=================+=+++++++++++==-----------=*#%@@@@@@%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%@@%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%@%%%%%%%%%%%%%%%%%%%%%%#######****+++++++++++++++========++==============+++++++++++++++==----------=+#%%%%%@@@%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%##%%%%%%%%%%%%######***++++++++++++++++=+++==++=+==============++++++++++++++===---------=+*%%%%%%%@%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%%%%%%%####*****+++++++=================++==-====-==+==++++++=+++++===---------=*%%%%%%%%%%%%%
+ %@-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%%%%%%%%%############**+++++++==========================-==+===+++++++++++====--------=*#%@@@%%%%%%%%%
+ %@-%@%%%%%%%%%%%%%%%%@@%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%%###%%%%%############**++++++=========================--=++=++++++++++++=====------==*#%@%%%%%%%%%%%%
+ %@-%@%%%%%%%%%%%%%%%@@@@@%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%######%%%%%#############**++++====================--====+++++++++++===++=====------=*#%%%%%%%%%%%%%%%%
+ %@-%@@%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%%#######%##%%############**++===================-==---=++=++++++++=+++++===------==+#%%%%%%%%%%%%%%%%%
+ %@-%@@@%%%%%%%%%%%%%@@@@@@@%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%##########################*++=======+++===------====+++++===+++++===++=-===-----=+*#%%%%%%%%%%%%%%%%%%
+ %@-%@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%#################****####**+++==+*****+=-----==+++++=++++++++++=====-====-===+*%%%%%%%%%%%%%%%%%%%%%
+ %@-%@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%#%####################*******+++*****+***+=----++**+=+++++++++++====------==+*#%%%%%%%%%%%%%%%%%%%%%%%
+ %@:%@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%####################**+*+*******++*****+=-==++++++++++++++======-------+*#%%%%%%%%%%%%%%%%%%%%%%%%%
+ %@:%@@@%%%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%%%%#######################**+*###**+++++*****+++++++++++++++++=====------==+#%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Integrazione di Spring Security}
+
+Spring Security è il framework di riferimento per la gestione di autenticazione, autorizzazione, sicurezza HTTP e gestione dei token JWT.  
+In questa guida, integriamo sia JWT generati internamente da Spring che JWT Firebase.
+
+\subsection{Filtro JWT personalizzato con Firebase}
+Il filtro estende \texttt{OncePerRequestFilter} e intercetta ogni richiesta per verificare il token Firebase:
+
+\begin{verbatim}
+@Component
+public class FirebaseJwtFilter extends OncePerRequestFilter {
+
+    private final FirebaseAuth firebaseAuth;
+    private static final Logger logger = LoggerFactory.getLogger(FirebaseJwtFilter.class);
+
+    public FirebaseJwtFilter(FirebaseAuth firebaseAuth) {
+        this.firebaseAuth = firebaseAuth;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String token = extractToken(request);
+        logger.info("Token trovato: " + (token != null ? "Sì" : "No"));
+
+        if (token != null) {
+            try {
+                FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
+                String uid = decodedToken.getUid();
+                List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(uid, null, authorities);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            } catch (FirebaseAuthException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Unauthorized: Firebase token invalid or expired");
+                return;
+            }
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null;
+    }
+}
+\end{verbatim}
+
+\subsection{Configurazione SecurityFilterChain}
+
+\begin{verbatim}
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final FirebaseAuth firebaseAuth;
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
+    @Bean
+    public FirebaseJwtFilter firebaseAuthenticationFilter() {
+        return new FirebaseJwtFilter(firebaseAuth);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        logger.info("Configurazione della sicurezza HTTP...");
+
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeRequests(requests -> requests
+                .requestMatchers("/auth/**", "/validate").permitAll()
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(management -> management
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .addFilterBefore(new JwtInternalAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(firebaseAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .cors(withDefaults());
+
+        logger.info("Configurazione della sicurezza completata.");
+        return http.build();
+    }
+}
+\end{verbatim}
+
+\subsection{Gestione dei ruoli e permessi}
+\begin{itemize}
+    \item \texttt{ROLE\_USER}: accesso standard per utenti autenticati
+    \item \texttt{ROLE\_ADMIN}: privilegi amministrativi
+    \item Personalizzazione dei ruoli può essere fatta direttamente nel filtro FirebaseJWT o nel JWT interno
+\end{itemize}
+
+\subsection{Autenticazione JWT interno}
+\begin{itemize}
+    \item JWT generato da Spring può essere gestito da un filtro separato (\texttt{JwtInternalAuthFilter})
+    \item Validazione token, estrazione userId, e settaggio di SecurityContextHolder
+    \item Possibile combinare i due JWT (Firebase + interno) per flussi ibridi
+\end{itemize}
+
+\subsection{Logging e gestione eccezioni}
+\begin{itemize}
+    \item \texttt{LoggerFactory.getLogger()} per logging dettagliato
+    \item Logging di richieste, token estratti e fallimenti di autenticazione
+    \item Risposte HTTP 401 in caso di token mancante o non valido
+\end{itemize}
+
+\subsection{Considerazioni finali}
+\begin{itemize}
+    \item Sessione stateless (\texttt{SessionCreationPolicy.STATELESS})
+    \item Permette di combinare autenticazione interna + Firebase
+    \item Tutti i filtri vengono aggiunti prima di \texttt{UsernamePasswordAuthenticationFilter}
+    \item Endpoint pubblici (/auth, /validate) rimangono liberamente accessibili
+\end{itemize}
+
+\subsection{CustomUserDetailsService: integrazione con Spring Security}
+
+Spring Security utilizza l'interfaccia \texttt{UserDetailsService} per caricare le informazioni dell'utente durante il processo di autenticazione.  
+Creare un servizio personalizzato permette di integrare database propri o sistemi esterni, anche quando si usa Firebase o JWT esterni.
+
+\subsubsection{Classe di esempio}
+\begin{verbatim}
+@Component
+public class CustomUserDetailsService implements UserDetailsService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Recupera l'utente dal database
+        UserAccount user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Costruisci UserDetails usando Spring Security User builder
+        return User.builder()
+                .username(user.getUsername())
+                .password("")       // password vuota perché usi Firebase
+                .roles("USER")      // oppure .authorities(...) se preferisci
+                .build();
+    }
+}
+\end{verbatim}
+
+\subsubsection{Spiegazione}
+
+\begin{itemize}
+    \item \textbf{UserDetailsService}: interfaccia principale per caricare informazioni di autenticazione e autorizzazione.
+    \item \textbf{loadUserByUsername}: metodo invocato da Spring Security durante il login, deve restituire un oggetto \texttt{UserDetails}.
+    \item \textbf{UserDetails}: rappresenta l'utente autenticato con username, password e ruoli/authorities.
+    \item \textbf{Integrazione con JWT o Firebase}: anche se la password non viene utilizzata (ad esempio perché si usa Firebase), l'oggetto \texttt{UserDetails} permette a Spring Security di gestire il contesto di sicurezza.
+    \item \textbf{Ruoli e authorities}: con \texttt{.roles("USER")} si assegna il ruolo base, ma si può anche usare \texttt{.authorities(...)} per permessi più granulari.
+\end{itemize}
+
+\subsubsection{Come si collega al SecurityConfig}
+
+\begin{itemize}
+    \item Il \texttt{CustomUserDetailsService} viene usato implicitamente da Spring Security quando si configura un \texttt{AuthenticationProvider} interno.
+    \item In combinazione con JWT o Firebase, permette di avere informazioni coerenti di ruolo/utente anche senza password locale.
+\end{itemize}
+
+
+\subsection{JwtInternalAuthFilter: gestione dei token interni e Firebase}
+
+Questo filtro estende \texttt{OncePerRequestFilter} e permette di gestire in modo ibrido:
+\begin{itemize}
+    \item JWT generati internamente dall'applicazione (Spring JWT)
+    \item JWT Firebase (controllando la presenza del claim 'kid')
+\end{itemize}
+
+\subsubsection{Funzionamento generale}
+\begin{enumerate}
+    \item Intercetta tutte le richieste HTTP
+    \item Controlla se l'header \texttt{Authorization} contiene un token
+    \item Se il token contiene il claim 'kid' → considera il token come Firebase e lo verifica tramite \texttt{FirebaseAuth}
+    \item Se il token non contiene 'kid' → lo considera un JWT interno e lo verifica tramite HMAC256
+    \item Popola il \texttt{SecurityContextHolder} con un oggetto \texttt{UsernamePasswordAuthenticationToken} valido
+    \item In caso di errore o token non valido → ritorna HTTP 401
+\end{enumerate}
+
+\subsubsection{Esempio di filtro}
+\begin{verbatim}
+public class JwtInternalAuthFilter extends OncePerRequestFilter {
+
+    private UsernamePasswordAuthenticationToken validateJwtInterno(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256("CHIAVE_SEGRETA"); // sostituire con la chiave reale
+            JWTVerifier verifier = JWT.require(algorithm).build();
+            DecodedJWT jwt = verifier.verify(token);
+
+            String userId = jwt.getSubject();
+            if (userId == null) return null;
+
+            return new UsernamePasswordAuthenticationToken(userId, null, List.of());
+
+        } catch (JWTVerificationException e) {
+            return null;
+        }
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = authHeader.substring(7);
+
+        try {
+            DecodedJWT decodedJWT = JWT.decode(token);
+
+            if (decodedJWT.getKeyId() != null) {
+                // Token Firebase
+                FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(firebaseToken.getUid(), null, List.of());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                // Token interno
+                UsernamePasswordAuthenticationToken authentication = validateJwtInterno(token);
+                if (authentication == null) throw new RuntimeException("Token JWT interno non valido");
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+
+        } catch (FirebaseAuthException | JWTDecodeException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token non valido");
+            return;
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
+\end{verbatim}
+
+\subsubsection{Punti chiave}
+
+\begin{itemize}
+    \item \textbf{Validazione ibrida}: consente di gestire sia token Firebase che JWT interni
+    \item \textbf{SecurityContextHolder}: imposta l'autenticazione per tutta la request
+    \item \textbf{Logging}: utilizzo di SLF4J per monitorare token validi e fallimenti
+    \item \textbf{HTTP 401}: restituito quando il token non è presente o non valido
+    \item \textbf{Integrazione con SecurityConfig}: aggiunto con \texttt{addFilterBefore()} prima di \texttt{UsernamePasswordAuthenticationFilter} per garantire la validazione su tutte le API protette
+\end{itemize}
+
+\subsubsection{Vantaggi}
+
+\begin{itemize}
+    \item Supporto multi-token senza duplicare filtri
+    \item Mantiene lo stato stateless (SessionCreationPolicy.STATELESS)
+    \item Permette di avere ruoli coerenti tra JWT interni e Firebase
+    \item Centralizza la logica di autenticazione in un unico filtro
+\end{itemize}
+
+\subsubsection{Filtri}
+\begin{itemize}
+    \item \texttt{OncePerRequestFilter}: garantisce che il filtro venga eseguito una sola volta per request.
+    \item \texttt{FirebaseJwtFilter}: verifica i token Firebase.
+    \item \texttt{JwtInternalAuthFilter}: verifica JWT generati internamente.
+    \item Filtri aggiunti in \texttt{SecurityConfig} con \texttt{addFilterBefore()}.
+\end{itemize}
+
+\subsubsection{SecurityConfig}
+\begin{itemize}
+    \item \texttt{@EnableWebSecurity}: abilita le configurazioni di sicurezza Spring.
+    \item \texttt{SecurityFilterChain}: definisce regole HTTP, permessi, CSRF, cors e filtri.
+    \item Endpoint pubblici: \texttt{permitAll()} per login, validate, swagger ecc.
+    \item Endpoint protetti: \texttt{authenticated()} per tutte le altre richieste.
+\end{itemize}
+
+\subsubsection{Lombok e UserDetails}
+\begin{itemize}
+    \item \texttt{CustomUserDetailsService} + \texttt{@Builder}, \texttt{@Data}: semplifica creazione di oggetti UserDetails.
+    \item Permette di non scrivere getter/setter manuali su entità o DTO.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{CORS (Cross-Origin Resource Sharing)}
+
+\subsection{Concetto}
+CORS permette di controllare quali domini esterni possono accedere alle API REST. Utile quando frontend e backend sono su domini diversi.
+
+\subsection{Configurazione globale}
+\begin{verbatim}
+@Configuration
+public class CorsConfig implements WebMvcConfigurer {
+@Override
+public void addCorsMappings(CorsRegistry registry) {
+registry.addMapping("/**")
+.allowedOrigins("[http://localhost:3000](http://localhost:3000)")
+.allowedMethods("GET","POST","PUT","DELETE")
+.allowCredentials(true);
+}
+}
+\end{verbatim}
+
+\subsection{Configurazione a livello di controller}
+\begin{verbatim}
+@RestController
+@CrossOrigin(origins = "[http://localhost:3000](http://localhost:3000)")
+public class UserController { ... }
+\end{verbatim}
+
+\section{Swagger / OpenAPI}
+
+\subsection{Concetto}
+Swagger (OpenAPI) permette di documentare automaticamente le API REST e testarle tramite UI interattiva.
+
+\subsection{Dipendenze principali (Maven)}
+\begin{verbatim} <dependency> <groupId>org.springdoc</groupId> <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId> <version>2.2.0</version> </dependency>
+\end{verbatim}
+
+\subsection{Annotazioni utili}
+\begin{itemize}
+\item \texttt{@Operation(summary="...")}: descrive l’endpoint
+\item \texttt{@ApiResponse(responseCode="200", description="...")}: descrive le risposte HTTP
+\item \texttt{@Parameter}: descrive parametri query/path/body
+\end{itemize}
+
+\subsection{Accesso alla UI}
+Una volta configurato, le API sono testabili su:
+\url{/swagger-ui.html} o \url{/swagger-ui/index.html}
+
+
+\end{document}
