@@ -1,0 +1,477 @@
+% ==========================
+% TEMPLATE LaTeX "Dark Edition"
+% Copia e incolla questo file per iniziare ogni nuovo progetto
+% ==========================
+
+\documentclass[10pt,a4paper]{article}
+
+% ----- Pacchetti -----
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage[dvipsnames,svgnames,x11names]{xcolor}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{textcomp}
+\usepackage{sectsty}
+\usepackage{tikz}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{url}  % nel preambolo
+
+
+% ----- Formattazione sottosezioni -----
+\titleformat{\subsection}
+  {\normalfont\Large\bfseries\color{subsectioncolor}}
+  {\thesubsection}
+  {1em}
+  {}
+  [\vspace{0.2em}\color{sectioncolor}\rule{\linewidth}{1pt}\vspace{0.5em}]
+
+% ----- Header/Footer -----
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancyfoot[C]{\textcolor{subsectioncolor}{\thepage}}
+\fancyfoot[R]{\hyperlink{toc}{\textcolor{sectioncolor}{\textbf{I}}}}
+\pagestyle{fancy}
+
+% ----- TikZ -----
+\usetikzlibrary{shapes, arrows}
+
+% ----- Margini -----
+\geometry{margin=1.5cm}
+
+% ----- Colori tema scuro -----
+\definecolor{darkbg}{HTML}{0D1117}
+\definecolor{lighttext}{HTML}{E6EDF3}
+\definecolor{sectioncolor}{HTML}{FF5555}
+\definecolor{subsectioncolor}{HTML}{58A6FF}
+\definecolor{linkcolor}{HTML}{FF5555}
+\definecolor{urllink}{HTML}{58A6FF}
+
+% ----- Attivazione dark mode -----
+\makeatletter
+\AtBeginDocument{%
+  \pagecolor{darkbg}%
+  \color{lighttext}%
+}
+\makeatother
+
+% ----- Font dei titoli -----
+\sectionfont{\color{sectioncolor}}
+\subsectionfont{\color{subsectioncolor}}
+
+% ----- TOC -----
+\renewcommand{\cftsecfont}{\color{sectioncolor}}
+\renewcommand{\cftsubsecfont}{\color{subsectioncolor}}
+\renewcommand{\cftsubsubsecfont}{\color{subsectioncolor}}
+
+% ----- Link -----
+\hypersetup{hidelinks}
+
+% ----- Tabelle -----
+\setlength{\extrarowheight}{2pt}
+
+\title{TITOLO DEL DOCUMENTO}
+\begin{document}
+
+\maketitle
+\renewcommand{\contentsname}{INDICE}
+\tableofcontents
+
+
+
+% Crea il target dell'indice
+\hypersetup{linkcolor=blue} % colore link
+
+
+\hypertarget{toc}{} % questo è il “target” a cui punta la I
+\newpage
+\section{Introduzione all'Ecosistema dei Pacchetti Arch Linux}
+\subsection{Obiettivo della Guida}
+Questa guida ha l'obiettivo di fornire una comprensione completa e dettagliata del funzionamento dell'ecosistema dei pacchetti in Arch Linux, coprendo sia i pacchetti dei repository ufficiali gestiti tramite \texttt{pacman}, sia i pacchetti dell'AUR installati tramite helper come \texttt{yay}.
+
+In particolare, la guida permette di comprendere:
+\begin{itemize}
+    \item Il flusso operativo completo di \texttt{pacman}: come vengono scaricati i pacchetti dai repository ufficiali, come vengono verificate firme e checksum, come vengono risolte le dipendenze e come vengono installati i file nel filesystem.
+    \item Il ruolo dell'AUR: cosa contiene, come si differenzia dai repository ufficiali e quali sono le responsabilità dell'utente durante il build dei pacchetti.
+    \item La struttura e il funzionamento di un \texttt{PKGBUILD}: variabili principali, funzioni (\texttt{prepare()}, \texttt{build()}, \texttt{check()}, \texttt{package()}, \texttt{pkgver()}) e come queste influenzano la creazione del pacchetto.
+    \item Il processo completo di \texttt{makepkg}: gestione delle sorgenti, controllo dei checksum, build dei binari, popolamento della directory \texttt{\$pkgdir} e generazione del pacchetto finale.
+    \item Le differenze tra pacchetti stabili e pacchetti \texttt{-git}, come viene calcolata la versione dinamica e come gli helper AUR gestiscono automaticamente le dipendenze e la costruzione.
+    \item La gestione dei conflitti tra pacchetti, inclusi file condivisi, pacchetti che forniscono lo stesso binario o libreria, e strategie per risolverli.
+    \item Principi di sicurezza pratici: verifica dei PKGBUILD, controllo delle sorgenti, chiavi PGP, uso di checksum, e rischi legati a eseguire script sconosciuti durante il build.
+\end{itemize}
+
+Questa sezione serve quindi a creare una base solida, permettendo al lettore non solo di capire il \"come\" dei comandi \texttt{pacman} e \texttt{yay}, ma soprattutto il \"perché\" di ogni fase e decisione all'interno del processo di installazione e build dei pacchetti Arch Linux.
+\subsection{Struttura del Documento}
+Il documento \\`e organizzato per guidare il lettore dal livello introduttivo fino alla comprensione avanzata dei pacchetti Arch Linux e del loro ciclo di vita, con un focus sia sui repository ufficiali sia sull'AUR. Ogni sezione \\`e strutturata in modo da fornire prima concetti teorici e contesto, seguiti da dettagli tecnici operativi, esempi pratici e best practice.
+
+La struttura generale \\`e la seguente:
+
+\begin{itemize}
+    \item \textbf{Introduzione:} presenta gli obiettivi della guida, i termini chiave, e il contesto in cui si inserisce l'ecosistema dei pacchetti Arch Linux.
+    \item \textbf{Repository ufficiali e pacman:} descrive come pacman interagisce con i repository ufficiali, il flusso di installazione dei pacchetti precompilati, la risoluzione delle dipendenze, il controllo delle firme e la gestione dei conflitti.
+    \item \textbf{AUR (Arch User Repository):} spiega cosa \\`e l'AUR, come differisce dai repository ufficiali, quali file contiene, e il ruolo degli helper AUR come yay e paru nella gestione del build e dell'installazione dei pacchetti.
+    \item \textbf{Il PKGBUILD:} analizza in dettaglio le variabili principali, le funzioni chiave (\texttt{prepare()}, \texttt{build()}, \texttt{check()}, \texttt{package()}, \texttt{pkgver()}) e come queste influenzano la creazione del pacchetto.
+    \item \textbf{makepkg e processo di build:} illustra l'intero ciclo di costruzione di un pacchetto, dalla fetch delle sorgenti alla generazione del file .pkg.tar.zst finale, inclusi checksum, firma, e gestione delle dipendenze di build.
+    \item \textbf{Pacchetti -git e versionamento dinamico:} spiega la differenza tra pacchetti stabili e -git, come viene calcolata dinamicamente la versione tramite \texttt{git describe}, e come gli helper AUR gestiscono le dipendenze e la build automatica.
+    \item \textbf{Conflitti tra pacchetti:} approfondisce i casi in cui due pacchetti possono avere file in comune, come pacman gestisce i conflitti, e le strategie per risolverli.
+    \item \textbf{Sicurezza e best practice:} linee guida per analizzare un PKGBUILD prima della build, verifica dei sorgenti, uso dei checksum, chiavi PGP e rischi di eseguire script esterni.
+    \item \textbf{Esempi pratici e appendici:} include esempi commentati di PKGBUILD, sia per pacchetti stabili sia -git, e una checklist di comandi utili per il monitoraggio, il debug e la manutenzione dei pacchetti.
+\end{itemize}
+
+Questa struttura permette al lettore di seguire un percorso progressivo, partendo dai concetti generali fino alla comprensione completa dei dettagli operativi e dei rischi, facilitando l'apprendimento teorico e pratico dell'intero ecosistema Arch Linux e AUR.
+
+\section{Repository Ufficiali e Pacman}
+\subsection{Come Funzionano i Repository Ufficiali}
+I repository ufficiali di Arch Linux sono strutture centralizzate contenenti pacchetti precompilati che vengono scaricati, verificati e installati da pacman. Questi pacchetti includono binari, librerie, documentazione e metadata dettagliati.
+
+Il funzionamento avviene attraverso diversi passaggi:
+
+\begin{itemize}
+\item \textbf{Database dei repository:} pacman mantiene un database locale in \texttt{/var/lib/pacman/sync/} dei repository abilitati, contenente informazioni su ogni pacchetto: nome, versione, dipendenze, file inclusi, checksum e firme. Prima di installare, pacman aggiorna questo database con \texttt{pacman -Sy}.
+\item \textbf{Download del pacchetto:} durante \texttt{pacman -S <pacchetto>}, pacman scarica il pacchetto precompilato (.pkg.tar.zst) dal mirror specificato in \texttt{/etc/pacman.d/mirrorlist}, assicurandosi di rispettare la gerarchia dei server e le preferenze impostate.
+\item \textbf{Verifica dell'integrità e firma digitale:} pacman confronta il checksum (SHA256) del pacchetto con quello registrato nel database e verifica la firma digitale GPG per garantire autenticità e integrità.
+\item \textbf{Risoluzione delle dipendenze:} pacman analizza tutte le dipendenze dichiarate e le risolve ricorsivamente, scaricando automaticamente i pacchetti necessari se non presenti nel sistema.
+\item \textbf{Controllo dei conflitti e file ownership:} pacman verifica se i file da installare esistono già in altri pacchetti. In caso di conflitto, l'installazione viene bloccata, segnalando il pacchetto in conflitto e richiedendo l'intervento dell'utente.
+\item \textbf{Installazione nel filesystem:} i file del pacchetto vengono estratti nelle directory corrette (/usr/bin, /usr/lib, /usr/share, ecc.), preservando permessi, proprietari e attributi speciali.
+\item \textbf{Aggiornamento del database locale dei pacchetti:} pacman registra tutte le informazioni sul pacchetto installato in \texttt{/var/lib/pacman/local/<pkg>/}, comprese le liste dei file, versioni, trigger e install scripts, utili per future operazioni di upgrade o rimozione.
+\item \textbf{Trigger e script post-installazione:} pacman esegue eventuali script forniti nel pacchetto (ad esempio aggiornamento cache font, registrazione librerie in ldconfig, aggiornamento database MIME o GSettings) per integrare completamente il pacchetto nel sistema.
+\end{itemize}
+
+Questo processo garantisce che ogni pacchetto installato dai repository ufficiali sia sicuro, coerente e correttamente integrato nel sistema Arch Linux, minimizzando errori di dipendenza o conflitti tra pacchetti.
+\subsection{Installazione dei Pacchetti Precompilati}
+L'installazione dei pacchetti precompilati tramite \texttt{pacman} implica una serie di operazioni dettagliate per assicurare che il pacchetto sia sicuro, integro e correttamente posizionato nel filesystem. Questi passaggi includono sia controlli preliminari sia operazioni post-installazione:
+
+\begin{itemize}
+\item \textbf{Risoluzione del nome pacchetto:} pacman controlla il database locale per verificare l'esistenza del pacchetto richiesto e identifica la versione più recente disponibile nel repository.
+\item \textbf{Download del pacchetto:} il pacchetto precompilato (.pkg.tar.zst) viene scaricato dal mirror configurato, usando protocolli sicuri (HTTP/S) e rispettando la gerarchia dei mirror e le opzioni di fallback.
+\item \textbf{Verifica dell'integrità:} pacman confronta il checksum del pacchetto con quello presente nel database per assicurarsi che il file non sia corrotto o modificato.
+\item \textbf{Verifica della firma digitale:} se il pacchetto o il database sono firmati, pacman verifica la firma GPG per autenticare la provenienza del pacchetto.
+\item \textbf{Risoluzione delle dipendenze:} pacman analizza le dipendenze dichiarate nel pacchetto e, se non presenti nel sistema, le scarica e installa automaticamente. Questo include anche la gestione delle dipendenze ricorsive.
+\item \textbf{Controllo dei conflitti:} pacman verifica se l'installazione del pacchetto andrebbe a sovrascrivere file appartenenti ad altri pacchetti, prevenendo errori e garantendo integrità del filesystem.
+\item \textbf{Estrazione dei file:} il pacchetto viene estratto nelle directory appropriate (/usr/bin, /usr/lib, /usr/share, ecc.), preservando permessi, proprietari e attributi speciali dei file.
+\item \textbf{Aggiornamento del database locale:} pacman registra tutte le informazioni sul pacchetto appena installato nel database locale (\texttt{/var/lib/pacman/local/<pkg>/}) per gestire aggiornamenti futuri, rimozioni e trigger.
+\item \textbf{Esecuzione dei trigger e script post-installazione:} vengono eseguiti eventuali script forniti dal pacchetto (come aggiornamento cache font, ldconfig, database MIME o GSettings), completando l'integrazione del pacchetto nel sistema.
+\end{itemize}
+
+Questa sequenza garantisce che l'installazione dei pacchetti precompilati sia sicura, coerente con lo stato del sistema e completamente integrata con gli altri pacchetti presenti, minimizzando conflitti e errori di dipendenza.
+\subsection{Vantaggi e Limitazioni}
+L'utilizzo dei pacchetti precompilati dai repository ufficiali di Arch Linux presenta numerosi vantaggi, ma anche alcune limitazioni che è importante conoscere per una gestione efficace del sistema.
+
+\textbf{Vantaggi:}
+\begin{itemize}
+\item \textbf{Stabilità e affidabilità:} i pacchetti nei repository ufficiali sono testati e curati dai manutentori Arch, riducendo il rischio di bug critici o incompatibilità.
+\item \textbf{Velocità di installazione:} essendo precompilati, i pacchetti possono essere installati rapidamente senza bisogno di compilazione locale.
+\item \textbf{Gestione automatica delle dipendenze:} pacman risolve automaticamente dipendenze dirette e ricorsive, evitando conflitti e installazioni incomplete.
+\item \textbf{Sicurezza:} pacchetti e database sono firmati digitalmente; l'integrità e l'autenticità vengono verificate automaticamente da pacman.
+\item \textbf{Trigger e script integrati:} eventuali script post-installazione e trigger vengono eseguiti automaticamente, assicurando che il pacchetto sia completamente integrato nel sistema.
+\end{itemize}
+
+\textbf{Limitazioni:}
+\begin{itemize}
+\item \textbf{Versioni non sempre aggiornate all'ultimo commit upstream:} i pacchetti nei repository ufficiali seguono le release stabili; eventuali aggiornamenti più recenti presenti nel repository upstream non sono immediatamente disponibili.
+\item \textbf{Meno flessibilità:} non è possibile modificare facilmente le opzioni di compilazione o applicare patch personalizzate, a differenza dei pacchetti AUR che puoi buildare localmente.
+\item \textbf{Possibili conflitti con pacchetti -git o personalizzati:} installare un pacchetto precompilato che condivide file con un pacchetto AUR o compilato localmente richiede di risolvere conflitti manualmente.
+\item \textbf{Dipendenza da mirror:} il download dei pacchetti precompilati dipende dalla disponibilità e aggiornamento dei mirror; un mirror non aggiornato può fornire versioni obsolete.
+\end{itemize}
+
+Questa analisi aiuta a comprendere quando conviene utilizzare pacchetti precompilati e quando, invece, può essere più vantaggioso ricorrere alla build locale tramite AUR, in base a esigenze di aggiornamento, personalizzazione o compatibilità del sistema.
+
+\section{AUR (Arch User Repository)}
+\subsection{Cos'è l'AUR}
+L'AUR (Arch User Repository) `e un repository comunitario gestito dagli utenti di Arch Linux, contenente metadati e ricette per la costruzione dei pacchetti, ma non i pacchetti precompilati. La filosofia alla base dell'AUR `e quella di consentire agli utenti di condividere e mantenere pacchetti che non sono inclusi nei repository ufficiali, fornendo un ecosistema flessibile e in continua evoluzione.
+
+\textbf{Caratteristiche principali dell'AUR:}
+\begin{itemize}
+\item \textbf{PKGBUILD:} ogni pacchetto AUR contiene un file PKGBUILD, uno script Bash che descrive dettagliatamente come costruire il pacchetto. Definisce variabili come \texttt{pkgname}, \texttt{pkgver}, \texttt{pkgrel}, \texttt{source}, \texttt{depends}, e funzioni come \texttt{prepare()}, \texttt{build()} e \texttt{package()}.
+\item \textbf{.SRCINFO:} un file generato a partire dal PKGBUILD che contiene metadati semplificati, usato dall'interfaccia web dell'AUR e dagli helper per verificare aggiornamenti.
+\item \textbf{Assenza di pacchetti binari:} l'AUR fornisce solo le istruzioni per buildare i pacchetti. L'utente o l'helper AUR deve compilare localmente i pacchetti prima dell'installazione.
+\item \textbf{Variazioni di pacchetti:} l'AUR ospita pacchetti stabili e pacchetti -git che seguono i commit più recenti del repository upstream. I pacchetti -git hanno \texttt{pkgver()} dinamico e spesso source puntati a repository Git.
+\item \textbf{Helper AUR:} strumenti come \texttt{yay}, \texttt{paru}, \texttt{trizen} automatizzano la clonazione del PKGBUILD, la risoluzione delle dipendenze di build, l'esecuzione di \texttt{makepkg} e l'installazione finale con \texttt{pacman -U}.
+\item \textbf{Controllo delle dipendenze:} makepkg distingue tra \texttt{depends} (dipendenze runtime) e \texttt{makedepends} (necessarie solo per la build). Gli helper AUR installano automaticamente le makedepends mancanti.
+\item \textbf{Sicurezza e verifiche:} prima della build, `e fondamentale ispezionare il PKGBUILD, verificare checksum, firme PGP e potenziali comandi pericolosi. L'AUR non ha garanzie di sicurezza come i repository ufficiali.
+\item \textbf{Conflitti e integrazione:} installare pacchetti AUR che sovrappongono file con pacchetti ufficiali o altri AUR richiede attenzione e gestione dei conflitti tramite \texttt{conflicts}, \texttt{provides} e \texttt{replaces}.
+\item \textbf{Vantaggi dell'AUR:} consente di accedere a software non incluso nei repo ufficiali, versioni più aggiornate, opzioni di build personalizzate e la possibilità di contribuire direttamente alla comunità.
+\item \textbf{Limitazioni dell'AUR:} richiede competenze tecniche maggiori, il processo di build pu`o fallire per dipendenze mancanti, versioni instabili o errori di compilazione; la sicurezza dipende dall'ispezione dell'utente.
+\end{itemize}
+
+L'AUR rappresenta quindi una risorsa potente ma che richiede consapevolezza: l'utente deve comprendere il processo di build, la struttura dei PKGBUILD e i rischi associati a sorgenti non verificate, garantendo una gestione consapevole e sicura dei pacchetti Arch Linux.
+\subsection{Differenze tra AUR e Repository Ufficiali}
+La principale differenza tra i repository ufficiali e l'AUR riguarda il tipo di pacchetti, il livello di sicurezza e il processo di installazione.
+
+\begin{itemize}
+\item \textbf{Tipologia di pacchetti:} nei repository ufficiali i pacchetti sono precompilati e pronti all'uso, mentre nell'AUR i pacchetti sono forniti come ricette (PKGBUILD) da compilare localmente.
+\item \textbf{Sicurezza e affidabilità:} i pacchetti ufficiali sono testati e firmati dai manutentori Arch, garantendo stabilit`a e integrit`a. Nell'AUR la sicurezza dipende dall'ispezione dell'utente: pacchetti malevoli o mal scritti possono introdurre rischi se non controllati.
+\item \textbf{Frequenza degli aggiornamenti:} i pacchetti ufficiali seguono le release stabili upstream, mentre l'AUR spesso ospita versioni pi`u recenti, incluso software -git con aggiornamenti continui dai repository upstream.
+\item \textbf{Personalizzazione:} nell'AUR `e possibile modificare il PKGBUILD, cambiare opzioni di compilazione, patchare il codice sorgente o scegliere versioni alternative, cosa non possibile con pacchetti ufficiali precompilati.
+\item \textbf{Processo di installazione:} pacman gestisce l'installazione automatica, dipendenze e trigger per pacchetti ufficiali. Gli helper AUR (come yay) automatizzano la build e l'installazione dei pacchetti AUR, ma coinvolgono pi`u passaggi e richiedono l'esecuzione di script locali.
+\item \textbf{Conflitti e integrazione:} i pacchetti ufficiali sono progettati per integrarsi senza problemi nel sistema, mentre i pacchetti AUR possono confliggere con pacchetti ufficiali se non dichiarati correttamente in \texttt{conflicts} o \texttt{provides}.
+\item \textbf{Gestione delle dipendenze di build:} l'AUR distingue tra \texttt{depends} (runtime) e \texttt{makedepends} (necessarie solo per la build), mentre i repository ufficiali si occupano solo delle dipendenze runtime essenziali.
+\end{itemize}
+
+In sintesi, i repository ufficiali sono ideali per stabilit`a e semplicit`a, mentre l'AUR offre flessibilit`a, versioni aggiornate e possibilità di personalizzazione, a fronte di una maggiore responsabilit`a nella gestione della sicurezza e dei conflitti.
+\subsection{Ruolo degli Helper AUR (yay, paru, ecc.)}
+Gli helper AUR, come \texttt{yay}, \texttt{paru} e \texttt{trizen}, sono strumenti che automatizzano il processo di installazione dei pacchetti AUR. Essi non sostituiscono \texttt{pacman}, ma integrano la sua funzionalit`a con operazioni necessarie per buildare e installare pacchetti dall'AUR.
+
+\textbf{Funzioni principali degli helper AUR:}
+\begin{itemize}
+\item \textbf{Clonazione dei PKGBUILD:} scaricano il PKGBUILD e gli eventuali file di supporto dal repository AUR, spesso tramite git o download diretto.
+\item \textbf{Risoluzione delle dipendenze di build:} identificano le \texttt{makedepends} mancanti e le installano automaticamente tramite pacman prima di avviare la build.
+\item \textbf{Esecuzione di makepkg:} eseguono \texttt{makepkg} per compilare localmente il pacchetto, gestendo opzioni come \texttt{-si} (installa dopo build) o \texttt{-c} (pulisce la directory build).
+\item \textbf{Installazione automatica:} una volta creato il pacchetto .pkg.tar.zst, l'helper chiama \texttt{pacman -U} per installarlo, gestendo aggiornamenti e conflitti.
+\item \textbf{Aggiornamenti:} gli helper possono controllare periodicamente la disponibilit`a di nuove versioni dei pacchetti AUR e facilitare l'aggiornamento automatico, integrando anche i pacchetti ufficiali nel medesimo flusso.
+\item \textbf{Funzionalit`a avanzate:} molti helper offrono ricerca interattiva, opzioni di filtro (ad esempio installare solo pacchetti -git, o escludere pacchetti instabili), gestione dei conflitti e caching dei PKGBUILD.
+\item \textbf{Sicurezza e consapevolezza:} nonostante l'automazione, l'utente deve sempre verificare i PKGBUILD prima della build; gli helper facilitano, ma non sostituiscono la responsabilit`a dell'utente nel controllare sorgenti e script.
+\end{itemize}
+
+In sostanza, gli helper AUR semplificano enormemente l'interazione con l'AUR, rendendo possibile l'installazione di pacchetti da sorgente quasi come fosse un pacchetto precompilato, pur mantenendo trasparenza e controllo sul processo di build.
+
+\section{Il PKGBUILD}
+\subsection{Struttura Generale del File}
+Il PKGBUILD `e uno script Bash che descrive dettagliatamente come costruire un pacchetto Arch Linux a partire dai sorgenti. "Buildare" in questo contesto significa compilare il codice sorgente o preparare i file binari, le librerie e la documentazione per creare un pacchetto pronto all'installazione (.pkg.tar.zst).
+
+La struttura generale di un PKGBUILD comprende:
+
+\begin{itemize}
+\item \textbf{Variabili obbligatorie:}
+\begin{itemize}
+\item \texttt{pkgname}: nome del pacchetto.
+\item \texttt{pkgver}: versione del pacchetto.
+\item \texttt{pkgrel}: numero di rilascio del pacchetto per la stessa versione upstream.
+\item \texttt{arch}: architetture supportate (ad es. x86\_64).
+\item \texttt{url}: pagina ufficiale o upstream.
+\item \texttt{license}: licenze del software.
+\item \texttt{depends}: dipendenze necessarie a runtime.
+\item \texttt{makedepends}: dipendenze necessarie solo per la build.
+\item \texttt{source}: URL o path dei sorgenti.
+\item \texttt{sha256sums}: checksum per verificare integrità dei sorgenti.
+\end{itemize}
+
+```
+\item \textbf{Funzioni principali:}
+\begin{itemize}
+    \item \texttt{prepare()}: prepara il sorgente, applica patch o configurazioni necessarie prima della build.
+    \item \texttt{build()}: compila il codice sorgente o prepara i file binari/librerie/documentazione.
+    \item \texttt{check()}: opzionale, esegue test sul software compilato.
+    \item \texttt{package()}: copia i file generati nella struttura di destinazione \texttt{\$pkgdir} rispettando la gerarchia standard (/usr/bin, /usr/lib, /usr/share).
+    \item \texttt{pkgver()}: opzionale, funzione dinamica per generare automaticamente la versione del pacchetto, tipica nei pacchetti -git.
+\end{itemize}
+```
+
+\item \textbf{Commenti e metadati aggiuntivi:} descrizioni, archivi alternativi, patch da applicare, e qualsiasi altra informazione utile al build e all'integrazione nel sistema.
+\end{itemize}
+
+Il PKGBUILD `e quindi una "ricetta" completa: definisce dove prendere il codice sorgente, come compilarlo/buildarlo, come organizzare i file nel pacchetto e quali dipendenze soddisfare, consentendo a makepkg e agli helper AUR di creare pacchetti installabili in maniera ripetibile e sicura.
+\subsection{Variabili Principali}
+Le variabili principali di un PKGBUILD definiscono informazioni essenziali sul pacchetto e sul processo di build. Conoscere queste variabili `e fondamentale per capire come makepkg costruisce il pacchetto e come pacman lo installa.
+
+\begin{itemize}
+\item \textbf{pkgname}: il nome del pacchetto. Deve essere univoco all'interno del sistema e coerente con le convenzioni Arch.
+\item \textbf{pkgver}: la versione del software upstream. Utilizzata per confrontare aggiornamenti e versioni.
+\item \textbf{pkgrel}: il numero di rilascio del pacchetto Arch per una stessa versione upstream. Incrementato ogni volta che si modifica il PKGBUILD senza cambiare \texttt{pkgver}.
+\item \textbf{arch}: architetture supportate, ad esempio x86\_64, i686. Imposta le architetture per cui il pacchetto `e costruito.
+\item \textbf{url}: URL del progetto o del sito ufficiale upstream.
+\item \textbf{license}: licenze del software, come GPL, MIT, BSD. Importante per conformit`a legale.
+\item \textbf{depends}: elenco delle dipendenze richieste a runtime. Pacman le installer`a se mancanti.
+\item \textbf{makedepends}: dipendenze richieste solo per costruire il pacchetto. Gli helper AUR le installeranno automaticamente prima della build.
+\item \textbf{source}: URL o path dei file sorgente da cui compilare o preparare il pacchetto.
+\item \textbf{sha256sums}: checksum SHA256 dei file sorgente per garantire integrit`a e sicurezza.
+\item \textbf{groups}: opzionale, permette di raggruppare pacchetti in gruppi tematici (ad es. base-devel).
+\item \textbf{conflicts}: pacchetti con cui questo pacchetto entra in conflitto. Pacman bloccher`a l'installazione se sono presenti.
+\item \textbf{provides}: pacchetti virtuali forniti dal pacchetto, utile per dipendenze alternative.
+\item \textbf{replaces}: pacchetti sostituiti dal pacchetto in questione.
+\end{itemize}
+
+Queste variabili, insieme alle funzioni di build, permettono a makepkg di costruire pacchetti coerenti e ripetibili, consentendo a pacman di gestirli correttamente nel sistema Arch Linux.
+\subsection{Funzioni build() e package()}
+Le funzioni \texttt{build()} e \texttt{package()} in un PKGBUILD sono fondamentali per la creazione dei pacchetti AUR, poich`e definiscono come il software viene compilato e come i file vengono organizzati nel pacchetto finale.
+
+\begin{itemize}
+\item \textbf{build()}: questa funzione prende i file sorgente e li trasforma in binari o librerie pronti all'uso. In pratica, "buildare" significa:
+\begin{itemize}
+\item Configurare l'ambiente di compilazione.
+\item Eseguire il processo di compilazione o preparazione dei file (es. con \texttt{./configure \&\& make} o strumenti equivalenti).
+\item Applicare patch, configurazioni o script aggiuntivi necessari per adattare il software al sistema.
+\end{itemize}
+La funzione \texttt{build()} non deve modificare direttamente il filesystem di sistema; tutti i file prodotti devono essere collocati nella directory temporanea gestita da makepkg.
+
+```
+\item \textbf{package()}: questa funzione si occupa di installare i file generati da \texttt{build()} nella struttura di destinazione del pacchetto, definita da \texttt{\$pkgdir}.
+\begin{itemize}
+    \item Copia i binari in \texttt{/usr/bin}, librerie in \texttt{/usr/lib}, documentazione in \texttt{/usr/share/doc}, ecc.
+    \item Imposta permessi, proprietari e attributi corretti per ciascun file.
+    \item Include eventuali script o file di configurazione necessari all'integrazione del pacchetto nel sistema.
+\end{itemize}
+\item \textbf{Separazione dei ruoli}: \texttt{build()} si occupa esclusivamente della compilazione e preparazione dei file, mentre \texttt{package()} organizza e crea la struttura definitiva del pacchetto installabile.
+```
+
+\end{itemize}
+
+Questa separazione garantisce che la build sia ripetibile e isolata, mentre la funzione package() consente a pacman di gestire correttamente l'installazione dei file nel sistema, preservando sicurezza e coerenza.
+\subsection{Gestione delle Dipendenze}
+La gestione delle dipendenze `e un aspetto fondamentale sia per i pacchetti dei repository ufficiali sia per i pacchetti AUR, poich`e garantisce che il software funzioni correttamente una volta installato.
+
+\begin{itemize}
+\item \textbf{Dipendenze runtime (depends):} queste sono librerie o pacchetti necessari al funzionamento del software installato. Pacman e gli helper AUR verificano che siano presenti e le installano automaticamente se mancanti.
+\item \textbf{Dipendenze di build (makedepends):} necessarie solo durante il processo di compilazione dei pacchetti AUR. Esempi tipici includono compilatori, strumenti di sviluppo o librerie temporanee. Gli helper AUR le installano automaticamente prima di eseguire \texttt{makepkg}.
+\item \textbf{Dipendenze opzionali (optdepends):} pacchetti non essenziali ma che abilitano funzionalit`a extra. La loro installazione `e suggerita ma non obbligatoria.
+\item \textbf{Risoluzione automatica:} pacman analizza ricorsivamente le dipendenze dei pacchetti e installa tutto il necessario. Gli helper AUR replicano questo comportamento anche per le \texttt{makedepends}.
+\item \textbf{Conflitti e virtual packages:} le variabili \texttt{conflicts}, \texttt{provides} e \texttt{replaces} gestiscono conflitti, sostituzioni e pacchetti virtuali. Questo permette di installare pacchetti alternativi senza problemi di compatibilit`a.
+\item \textbf{Sicurezza e coerenza:} il controllo delle dipendenze evita installazioni incomplete o danneggiate, riducendo rischi di crash o malfunzionamenti.
+\end{itemize}
+
+Una corretta gestione delle dipendenze garantisce che sia i pacchetti precompilati sia i pacchetti AUR siano integrati nel sistema in maniera coerente, stabile e sicura, prevenendo errori durante l'esecuzione del software e semplificando aggiornamenti futuri.
+\subsection{Generazione della Versione tramite pkgver()}
+La funzione \texttt{pkgver()} in un PKGBUILD `e opzionale ma estremamente utile, specialmente per i pacchetti -git o per pacchetti che seguono una versione dinamica upstream. Questa funzione genera la versione del pacchetto basandosi sullo stato attuale del codice sorgente, consentendo di avere sempre numeri di versione aggiornati e coerenti.
+
+\begin{itemize}
+\item \textbf{Pacchetti stabili:} per pacchetti con versioni fisse, \texttt{pkgver()} di solito non viene definita, e il PKGBUILD usa la variabile \texttt{pkgver} statica.
+\item \textbf{Pacchetti -git:} questi pacchetti prendono il codice dall'ultimo commit di un repository git. La funzione \texttt{pkgver()} esegue comandi come:
+\begin{verbatim}
+pkgver() {
+cd "$srcdir/$_pkgname"
+git describe --long --tags
+}
+\end{verbatim}
+Questo genera versioni del tipo \texttt{0.52.0.r1283.g4acbfe3}, dove:
+\begin{itemize}
+\item \texttt{0.52.0} = ultimo tag upstream,
+\item \texttt{r1283} = numero di commit dal tag,
+\item \texttt{g4acbfe3} = hash del commit.
+\end{itemize}
+\item \textbf{Vantaggi:} questa generazione dinamica permette di sapere esattamente quale versione del codice sorgente `e stata buildata, rendendo tracciabili aggiornamenti frequenti senza modificare manualmente \texttt{pkgver}.
+\item \textbf{Integrazione con makepkg:} durante la build, makepkg chiama automaticamente \texttt{pkgver()} se presente, sostituendo il valore della variabile \texttt{pkgver} statica con quello calcolato.
+\item \textbf{Best practice:} usare \texttt{pkgver()} solo quando necessario, verificare che non produca valori inconsistenti, e assicurarsi che il numero risultante segua la convenzione Arch per l'ordinamento delle versioni.
+\end{itemize}
+
+Questa funzione consente quindi di avere un versionamento preciso e automatico dei pacchetti derivati da repository in rapido sviluppo, come quelli -git, senza intervento manuale dell'utente.
+
+\section{Pacchetti -git}
+\subsection{Caratteristiche dei Pacchetti Basati su Repository Git}
+I pacchetti basati su repository Git, spesso indicati con il suffisso -git nell'AUR, hanno caratteristiche particolari rispetto ai pacchetti stabili dei repository ufficiali.
+
+\begin{itemize}
+\item \textbf{Versione dinamica:} la versione del pacchetto viene generata automaticamente tramite la funzione \texttt{pkgver()}, riflettendo l'ultimo commit presente nel repository Git. Questo permette di avere sempre la versione pi`u aggiornata del software.
+\item \textbf{Aggiornamenti frequenti:} essendo legati al repository upstream, i pacchetti -git ricevono aggiornamenti continui, anche più volte al giorno, diversamente dai pacchetti stabili che seguono le release ufficiali.
+\item \textbf{Compilazione locale obbligatoria:} a differenza dei pacchetti precompilati, i pacchetti -git richiedono la build locale tramite \texttt{makepkg} o helper AUR. Non esistono binari preconfezionati.
+\item \textbf{Controllo delle dipendenze di build:} le \texttt{makedepends} devono essere presenti per compilare correttamente il pacchetto. Helper come \texttt{yay} installano automaticamente queste dipendenze.
+\item \textbf{Rischio di instabilit`a:} i pacchetti -git possono introdurre bug o comportamenti instabili poich`e seguono lo stato corrente dello sviluppo, non una release testata.
+\item \textbf{Tracciabilit`a dei commit:} la versione generata include il numero di commit e l'hash del commit, permettendo di identificare esattamente il codice sorgente usato per la build.
+\item \textbf{Integrazione con gli helper AUR:} helper come \texttt{yay} gestiscono automaticamente il pull dei repository Git, l'esecuzione di \texttt{makepkg}, e l'installazione dei pacchetti aggiornati.
+\item \textbf{Personalizzazione e patching:} essendo costruiti localmente, questi pacchetti consentono facilmente di applicare patch o modifiche personalizzate prima della build.
+\end{itemize}
+
+I pacchetti basati su Git offrono quindi l'accesso immediato all'ultima versione del software, massima flessibilit`a e trasparenza del codice sorgente, ma richiedono attenzione alla gestione delle dipendenze e alla stabilit`a del sistema.
+\subsection{Versionamento Automatico}
+Il versionamento automatico nei pacchetti AUR, in particolare nei pacchetti -git, `e una caratteristica che consente di generare numeri di versione dinamici basati sullo stato del repository upstream. Questa funzionalit`a si integra con la funzione \texttt{pkgver()} per fornire un identificatore preciso della versione del software compilato.
+
+\begin{itemize}
+\item \textbf{Numeri di commit e hash:} la versione generata include l'ultimo tag upstream, il numero di commit successivi al tag e l'hash del commit, ad esempio \texttt{0.52.0.r1283.g4acbfe3}.
+\item \textbf{Rilevanza per gli aggiornamenti:} il versionamento automatico permette agli helper AUR di determinare se esiste un nuovo commit da buildare, semplificando la gestione di pacchetti in rapido sviluppo.
+\item \textbf{Compatibilit`a con pacman:} il numero di versione dinamico rispetta la convenzione Arch per ordinamento e confronto delle versioni, garantendo che pacman possa gestire correttamente aggiornamenti e conflitti.
+\item \textbf{Vantaggi:} consente tracciabilit`a precisa, facilita l'integrazione con script di automazione, e riduce la necessit`a di modifiche manuali alla variabile \texttt{pkgver}.
+\item \textbf{Best practice:} utilizzare il versionamento automatico solo quando il pacchetto segue repository in rapido sviluppo, verificando che le versioni generate siano coerenti e ordinate correttamente.
+\end{itemize}
+
+Il versionamento automatico, combinato con i pacchetti -git e gli helper AUR, offre un sistema potente per mantenere i pacchetti sempre aggiornati, pur mantenendo coerenza e tracciabilit`a nella gestione delle versioni.
+\subsection{Differenze con i Pacchetti Stabili}
+I pacchetti -git o basati su repository Git si differenziano dai pacchetti stabili dei repository ufficiali su diversi aspetti fondamentali:
+
+\begin{itemize}
+\item \textbf{Aggiornamenti:} i pacchetti stabili seguono le release ufficiali upstream, mentre i pacchetti -git vengono aggiornati ad ogni nuovo commit, offrendo accesso immediato alle ultime modifiche.
+\item \textbf{Versionamento:} i pacchetti stabili hanno una versione fissa e un numero di release incrementale (pkgrel), mentre i pacchetti -git utilizzano versionamento dinamico tramite \texttt{pkgver()} con tag, numero di commit e hash.
+\item \textbf{Compilazione:} i pacchetti stabili sono generalmente precompilati nei repository ufficiali, mentre i pacchetti -git richiedono la build locale da sorgente.
+\item \textbf{Stabilità e rischio:} i pacchetti stabili sono testati e affidabili, mentre i pacchetti -git possono introdurre bug o comportamenti instabili poich`e seguono lo sviluppo in tempo reale.
+\item \textbf{Personalizzazione:} i pacchetti -git permettono modifiche al PKGBUILD, patch locali e opzioni di compilazione personalizzate, cosa che non `e possibile con i pacchetti stabili precompilati.
+\item \textbf{Tracciabilit`a:} i pacchetti -git includono informazioni sui commit esatti utilizzati per la build, rendendo facile identificare lo stato esatto del codice sorgente, mentre i pacchetti stabili riportano solo la versione ufficiale.
+\item \textbf{Dipendenze:} i pacchetti stabili gestiscono solo le dipendenze runtime, mentre i pacchetti -git richiedono anche makedepends per la build, con installazione automatica da parte degli helper AUR.
+\end{itemize}
+
+Queste differenze evidenziano i compromessi tra stabilit`a e aggiornamenti rapidi: i pacchetti stabili sono ideali per sistemi affidabili e coerenti, mentre i pacchetti -git offrono le ultime funzionalit`a a costo di una maggiore attenzione alla gestione delle dipendenze e alla stabilit`a complessiva del sistema.
+
+\section{Conflitti tra Pacchetti}
+\subsection{Come Nascono i File Conflicts}
+I file conflicts nascono quando due pacchetti tentano di installare nello stesso percorso file con lo stesso nome, causando sovrascritture indesiderate. Questa situazione pu`o verificarsi sia tra pacchetti dei repository ufficiali sia tra pacchetti AUR o tra pacchetti ufficiali e AUR.
+
+\begin{itemize}
+\item \textbf{File duplicati:} se due pacchetti includono lo stesso binario, libreria o file di configurazione, pacman rileva il conflitto e blocca l'installazione per evitare corruzioni del sistema.
+\item \textbf{Pacchetti -git e stabili:} spesso pacchetti -git installano file identici a quelli presenti nei pacchetti stabili, causando conflitti se non rimossi o gestiti correttamente.
+\item \textbf{Sovrapposizione di directory:} non solo i file singoli, ma anche directory condivise possono causare conflitti se i permessi o i contenuti non sono coerenti.
+\item \textbf{Variabili PKGBUILD coinvolte:} le direttive \texttt{conflicts}, \texttt{provides} e \texttt{replaces} aiutano a dichiarare e risolvere preventivamente conflitti tra pacchetti.
+\item \textbf{Gestione automatica:} pacman utilizza queste informazioni per bloccare o permettere installazioni in base a conflitti dichiarati. Gli helper AUR rispettano la stessa logica durante l'installazione dei pacchetti buildati localmente.
+\end{itemize}
+
+Comprendere come nascono i conflitti `e essenziale per gestire correttamente l'interazione tra pacchetti ufficiali e pacchetti AUR, evitando sovrascritture e garantendo integrit`a del filesystem.
+\subsection{Perché hyprland e hyprland-git Confliggono}
+Il conflitto tra \texttt{hyprland} (dal repository ufficiale) e \texttt{hyprland-git} (dall'AUR) nasce principalmente dalla sovrapposizione dei file installati e dalla gestione delle versioni diverse:
+
+\begin{itemize}
+\item \textbf{File identici:} entrambi i pacchetti installano file binari in \texttt{/usr/bin/Hyprland}, librerie in \texttt{/usr/lib/libhyprland*} e risorse in \texttt{/usr/share/hyprland/}. La presenza simultanea provoca file conflicts.
+\item \textbf{Versioni differenti:} \texttt{hyprland} dal repository ufficiale `e stabile e ha versioni numeriche definite, mentre \texttt{hyprland-git} segue l'ultimo commit upstream, generando versioni dinamiche (es. 0.52.0.r1283.g4acbfe3) tramite \texttt{pkgver()}.
+\item \textbf{Gestione pacchetti da pacman:} pacman rileva che due pacchetti vogliono scrivere negli stessi percorsi e blocca l'installazione, evitando corruzioni del filesystem.
+\item \textbf{Dipendenze e coerenza:} installare entrambi potrebbe causare incompatibilità tra librerie o comportamenti inattesi del software, poich`e il sistema non sa quale versione considerare primaria.
+\item \textbf{Risoluzione dichiarata:} per prevenire conflitti, i PKGBUILD possono dichiarare \texttt{conflicts} con pacchetti specifici, ma in assenza di dichiarazione, pacman rileva comunque la sovrapposizione di file e blocca l'operazione.
+\end{itemize}
+
+Questa comprensione `e essenziale per chi vuole gestire hyprland in versione stabile o -git, poich`e installare uno richiede la rimozione o il backup dell'altro per evitare conflitti.
+\subsection{Strategie di Risoluzione}
+Per gestire i conflitti tra pacchetti come \texttt{hyprland} e \texttt{hyprland-git}, esistono diverse strategie per garantire la corretta installazione senza corrompere il sistema.
+
+\begin{itemize}
+\item \textbf{Disinstallare il pacchetto in conflitto:} prima di installare \texttt{hyprland-git}, rimuovere \texttt{hyprland} con \texttt{sudo pacman -R hyprland}. Questo elimina i file duplicati e previene conflitti.
+\item \textbf{Backup dei file personalizzati:} se sono presenti configurazioni o modifiche locali, salvarle prima di disinstallare il pacchetto in conflitto.
+\item \textbf{Utilizzare PKGBUILD con \texttt{conflicts} dichiarato:} alcuni pacchetti AUR dichiarano automaticamente i conflitti con pacchetti ufficiali, semplificando la gestione tramite pacman.
+\item \textbf{Gestione tramite helper AUR:} strumenti come \texttt{yay} rilevano automaticamente pacchetti in conflitto e suggeriscono la rimozione prima di procedere con la build e l'installazione.
+\item \textbf{Isolamento dei pacchetti (opzionale):} in casi avanzati, si possono installare pacchetti AUR in directory non standard o containerizzati per evitare sovrapposizioni con pacchetti ufficiali.
+\item \textbf{Aggiornamento ordinato:} aggiornare sempre prima i pacchetti ufficiali o AUR per evitare conflitti dovuti a versioni diverse di file condivisi.
+\item \textbf{Verifica post-installazione:} controllare che i file principali e le librerie siano coerenti e che il software funzioni correttamente dopo l'installazione.
+\end{itemize}
+
+Seguendo queste strategie, si pu`o installare e aggiornare pacchetti -git come \texttt{hyprland-git} senza interferire con i pacchetti stabili del repository ufficiale, mantenendo il sistema stabile e coerente.
+
+\section{Conclusioni}
+\subsection{Riepilogo dei Concetti Chiave}
+In questa guida abbiamo esplorato in dettaglio l'ecosistema dei pacchetti Arch Linux e AUR, con particolare attenzione a pacchetti come \texttt{hyprland} e \texttt{hyprland-git}. Ecco i punti principali:
+
+\begin{itemize}
+\item \textbf{Repository ufficiali:} contengono pacchetti precompilati, stabili e firmati, gestiti da pacman con sicurezza e coerenza garantite.
+\item \textbf{AUR:} repository di pacchetti non precompilati, contenenti PKGBUILD che definiscono come buildare e installare il software localmente.
+\item \textbf{PKGBUILD:} file script che descrive sorgenti, dipendenze, funzioni di build e package, versionamento e gestione di conflitti.
+\item \textbf{Variabili principali:} \texttt{pkgname}, \texttt{pkgver}, \texttt{pkgrel}, \texttt{depends}, \texttt{makedepends}, \texttt{source}, \texttt{sha256sums}, \texttt{conflicts}, \texttt{provides} e \texttt{replaces}, che definiscono il comportamento del pacchetto.
+\item \textbf{Funzioni chiave:} \texttt{prepare()} per patch e preparazioni, \texttt{build()} per compilazione, \texttt{check()} per test opzionali, \texttt{package()} per organizzare file nel pacchetto, \texttt{pkgver()} per versionamento dinamico.
+\item \textbf{Helper AUR:} strumenti come \texttt{yay} automatizzano download, build, gestione delle dipendenze e installazione dei pacchetti AUR.
+\item \textbf{Pacchetti -git:} sempre aggiornati all'ultimo commit, richiedono build locale, versionamento dinamico e attenzione a stabilità e dipendenze.
+\item \textbf{Conflitti tra pacchetti:} nascono da file duplicati o directory sovrapposte; gestiti tramite \texttt{conflicts}, rimozione del pacchetto in conflitto e strategie sicure di aggiornamento.
+\item \textbf{Versionamento automatico:} fondamentale per pacchetti in sviluppo continuo, garantisce tracciabilità dei commit e corretto aggiornamento tramite helper.
+\item \textbf{Strategie di risoluzione:} disinstallazione dei pacchetti in conflitto, backup dei file, gestione tramite helper, aggiornamento ordinato e verifica post-installazione.
+\end{itemize}
+
+Questo riepilogo fornisce una base completa per comprendere come funziona Arch Linux nell'interazione tra pacman, AUR, PKGBUILD e pacchetti in rapido sviluppo come \texttt{hyprland-git}, consentendo una gestione consapevole e sicura del sistema.
+\subsection{Passi Successivi}
+Dopo aver compreso l'intero ecosistema dei pacchetti Arch Linux e AUR, e le differenze tra pacchetti stabili e -git, ecco i passi successivi consigliati per applicare le conoscenze:
+
+\begin{itemize}
+\item \textbf{Pratica con pacman:} installa, aggiorna e rimuovi pacchetti dai repository ufficiali per familiarizzare con la gestione base dei pacchetti.
+\item \textbf{Esplora l'AUR:} scegli un pacchetto semplice, scarica il PKGBUILD e analizzalo riga per riga per comprendere variabili e funzioni.
+\item \textbf{Usa un helper AUR:} prova con \texttt{yay} o \texttt{paru} per installare pacchetti AUR e osserva come vengono gestite dipendenze, build e installazione.
+\item \textbf{Crea o modifica un PKGBUILD:} prova a buildare un pacchetto personalizzato o a modificare un PKGBUILD esistente per capire il flusso completo.
+\item \textbf{Gestione dei conflitti:} esercitati con pacchetti in conflitto come \texttt{hyprland} e \texttt{hyprland-git} per applicare le strategie di risoluzione in sicurezza.
+\item \textbf{Versionamento e -git:} osserva come \texttt{pkgver()} genera versioni dinamiche, e come questo influisce su aggiornamenti e tracciabilità dei pacchetti.
+\item \textbf{Documentazione continua:} tieni traccia delle tue modifiche, delle versioni buildate e delle strategie adottate per avere un riferimento completo per futuri aggiornamenti.
+\end{itemize}
+
+Seguendo questi passi, sar`a possibile diventare autonomi nella gestione di pacchetti Arch Linux e AUR, comprendendo appieno cosa accade dietro le quinte durante la build e l'installazione dei pacchetti.
+
+
+
+
+% ==========================
+% Fine documento
+% ==========================
+
+
+\end{document}
