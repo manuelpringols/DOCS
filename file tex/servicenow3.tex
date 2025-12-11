@@ -1,0 +1,751 @@
+% ==========================
+% TEMPLATE LaTeX "Dark Edition"
+% Copia e incolla questo file per iniziare ogni nuovo progetto
+% ==========================
+
+\documentclass[10pt,a4paper]{article}
+
+% ----- Pacchetti -----
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage[dvipsnames,svgnames,x11names]{xcolor}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{textcomp}
+\usepackage{sectsty}
+\usepackage{tikz}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+% ----- Formattazione sottosezioni -----
+\titleformat{\subsection}
+  {\normalfont\Large\bfseries\color{subsectioncolor}}
+  {\thesubsection}
+  {1em}
+  {}
+  [\vspace{0.2em}\color{sectioncolor}\rule{\linewidth}{1pt}\vspace{0.5em}]
+
+% ----- Header/Footer -----
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancyfoot[C]{\textcolor{subsectioncolor}{\thepage}}
+\fancyfoot[R]{\hyperlink{toc}{\textcolor{sectioncolor}{\textbf{I}}}}
+\pagestyle{fancy}
+
+% ----- TikZ -----
+\usetikzlibrary{shapes, arrows}
+
+% ----- Margini -----
+\geometry{margin=1.5cm}
+
+% ----- Colori tema scuro -----
+\definecolor{darkbg}{HTML}{0D1117}
+\definecolor{lighttext}{HTML}{E6EDF3}
+\definecolor{sectioncolor}{HTML}{FF5555}
+\definecolor{subsectioncolor}{HTML}{58A6FF}
+\definecolor{linkcolor}{HTML}{FF5555}
+\definecolor{urllink}{HTML}{58A6FF}
+
+% ----- Attivazione dark mode -----
+\makeatletter
+\AtBeginDocument{%
+  \pagecolor{darkbg}%
+  \color{lighttext}%
+}
+\makeatother
+
+% ----- Font dei titoli -----
+\sectionfont{\color{sectioncolor}}
+\subsectionfont{\color{subsectioncolor}}
+
+% ----- TOC -----
+\renewcommand{\cftsecfont}{\color{sectioncolor}}
+\renewcommand{\cftsubsecfont}{\color{subsectioncolor}}
+\renewcommand{\cftsubsubsecfont}{\color{subsectioncolor}}
+
+% ----- Link -----
+\hypersetup{hidelinks}
+
+% ----- Tabelle -----
+\setlength{\extrarowheight}{2pt}
+
+\title{TITOLO DEL DOCUMENTO}
+\begin{document}
+
+\maketitle
+\renewcommand{\contentsname}{INDICE}
+\tableofcontents
+
+
+
+% Crea il target dell'indice
+\hypersetup{linkcolor=blue} % colore link
+
+
+\hypertarget{toc}{} % questo è il “target” a cui punta la I
+\newpage
+servicenow
+
+
+
+
+
+
+\section{Introduction to Server-side Scripting}
+
+\subsection{Categorie di Script}
+Gli script in ServiceNow si dividono in due categorie principali:
+\begin{itemize}
+    \item \textbf{Client-side:} eseguiti nel browser dell'utente.
+    \item \textbf{Server-side:} eseguiti sul server o sul database di ServiceNow.
+\end{itemize}
+
+\subsection{Funzionalità degli Script Server-side}
+Gli script server-side possono eseguire diverse operazioni, ad esempio:
+\begin{itemize}
+    \item Aggiornare campi di record al momento di query sul database
+    \item Impostare valori su record correlati quando un record viene salvato
+    \item Gestire tentativi di login falliti
+    \item Controllare se un utente ha un ruolo specifico
+    \item Inviare email
+    \item Generare e rispondere a eventi
+    \item Confrontare due date per determinare l’ordine cronologico
+    \item Determinare se oggi è un giorno feriale o weekend
+    \item Calcolare la data di inizio del prossimo trimestre
+    \item Scrivere messaggi di log
+    \item Inviare e ricevere messaggi REST da altri sistemi
+\end{itemize}
+
+\subsection{Obiettivi del Modulo}
+Al termine del modulo, imparerai a scrivere, testare e fare debug di due tipi principali di script server-side:
+\begin{itemize}
+    \item \textbf{Business Rules}
+    \item \textbf{Script Includes}
+\end{itemize}
+
+
+\section{Business Rules}
+
+\subsection{Panoramica}
+Le \textbf{Business Rules} sono script server-side che eseguono logica quando i record di una tabella vengono interrogati, inseriti, aggiornati o cancellati.  
+Queste regole rispondono alle interazioni con il database indipendentemente dal metodo di accesso, come ad esempio:
+\begin{itemize}
+    \item Utenti che interagiscono con record tramite form o liste
+    \item Web service
+    \item Importazioni di dati configurabili
+\end{itemize}
+Le Business Rules non monitorano i campi dei form, ma vengono eseguite quando un form interagisce con il database, ad esempio al salvataggio di un record.
+
+\subsection{Configurazione Principale}
+\begin{itemize}
+    \item \textbf{Name:} Nome della Business Rule.
+    \item \textbf{Table:} Tabella del database su cui la Business Rule eseguirà la logica.
+    \item \textbf{Application:} Applicazione a cui la Business Rule appartiene.
+    \item \textbf{Active:} Abilita o disabilita la Business Rule.
+    \item \textbf{Advanced:} Mostra tutte le opzioni di configurazione avanzate.
+\end{itemize}
+
+\subsection{Sezione When to Run}
+\begin{itemize}
+    \item \textbf{When:} Definisce quando la logica viene eseguita rispetto all'accesso al database (before, after, instead of).
+    \item \textbf{Order:} Ordine di esecuzione tra Business Rules della stessa tabella. Convenzionalmente valori multipli di 100 (100, 200, 300...).
+    \item \textbf{Insert:} Esegui quando vengono inseriti nuovi record.
+    \item \textbf{Update:} Esegui quando i record vengono modificati.
+    \item \textbf{Delete:} Esegui quando i record vengono cancellati.
+    \item \textbf{Query:} Esegui quando la tabella viene interrogata.
+    \item \textbf{Filter Conditions:} Condizioni da rispettare affinché la logica venga eseguita.
+    \item \textbf{Role conditions:} Ruoli richiesti agli utenti che modificano i record.
+\end{itemize}
+
+
+\subsection{Controllare Quando le Business Rules Eseguono}
+
+Il campo \textbf{When} determina quando, rispetto all'accesso al database, la logica della Business Rule viene eseguita.  
+Le opzioni principali sono:
+
+\begin{itemize}
+    \item \textbf{Before:} Esegue la logica prima dell'operazione sul database. Utile per modificare campi del record prima che siano salvati.  
+    \textit{Esempio:} Concatenare due campi e scrivere il risultato in un campo Descrizione.
+    
+    \item \textbf{After:} Esegue la logica subito dopo l'operazione sul database e prima che il form sia renderizzato. Utile per aggiornare record correlati senza modificare il record principale.  
+    \textit{Esempio:} Propagare modifiche dal record padre ai record figli.
+    
+    \item \textbf{Async:} Esegue in modo asincrono su un thread separato dopo l'operazione sul database. La transazione corrente continua senza attese.  
+    \textit{Esempio:} Invocare web service REST o calcolare SLA.
+    
+    \item \textbf{Display:} Esegue la logica quando un form carica un record. Popola l'oggetto \texttt{g\_scratchpad} per fornire dati al client-side senza modificare il record.
+\end{itemize}
+
+\subsubsection{Ordine di esecuzione delle Business Rules}
+Quando una tabella ha più Business Rules di tipi diversi, l'ordine di esecuzione è tipicamente:
+\begin{enumerate}
+    \item Query rules
+    \item Database query
+    \item Display
+    \item Form submit
+    \item Before rules
+    \item Database update
+    \item After rules
+    \item Async rules
+\end{enumerate}
+
+
+\subsection{Azioni delle Business Rules}
+
+Le \textbf{Business Rule Actions} permettono di configurare azioni eseguite dalla Business Rule senza scrivere script complessi. Le principali azioni sono:
+
+\begin{itemize}
+    \item \textbf{Set field values:} Imposta i valori dei campi del record. I valori possono essere:
+    \begin{itemize}
+        \item \textbf{Dynamically determined (To dynamic):} Valori calcolati a runtime, ad esempio l'utente attualmente loggato.
+        \item \textbf{Same as:} Copia il valore da un altro campo dello stesso record.
+        \item \textbf{Hard coded (To):} Imposta un valore fisso, ad esempio ``Awaiting Approval''.
+    \end{itemize}
+
+    \item \textbf{Add a message:} Visualizza un messaggio in cima al form. Il messaggio può contenere testo formattato, ma elementi multimediali non vengono renderizzati. Utile per notificare l'utente di informazioni importanti o risultati dell'azione.
+
+    \item \textbf{Abort:} Interrompe l'esecuzione della Business Rule e annulla l'operazione sul database. È possibile mostrare un messaggio usando l'opzione ``Add message'' per informare l'utente.
+\end{itemize}
+
+\subsubsection{Esempio pratico}
+\begin{itemize}
+    \item ``Requested for'' = valore dinamico (utente corrente)
+    \item ``Description'' = valore uguale a ``Short description''
+    \item ``State'' = valore hard coded ``Awaiting Approval''
+    \item Aggiungere un messaggio informativo sul form
+    \item In caso di condizione non soddisfatta, usare ``Abort'' + messaggio
+\end{itemize}
+
+
+\section{Business Rule Scripts}
+
+\subsection{Introduzione}
+I \textbf{Business Rule Scripts} consentono di eseguire logica server-side quando un record viene interrogato, inserito, aggiornato o cancellato.  
+Per scrivere script è necessario selezionare l'opzione \textbf{Advanced} nella configurazione della Business Rule.
+
+\subsection{Campi di scripting}
+
+\begin{itemize}
+    \item \textbf{Condition:} Espressione booleana che determina se il codice dello script deve essere eseguito.
+    \item \textbf{Script:} Codice server-side vero e proprio, eseguito solo se la condizione è vera.
+\end{itemize}
+
+\subsection{Oggetti principali}
+\begin{itemize}
+    \item \textbf{current:} Record corrente con tutti i campi e metodi GlideRecord.
+    \item \textbf{previous:} Valori del record prima della modifica (non disponibile per async Business Rules).
+\end{itemize}
+
+\subsection{Esempi di condizioni}
+
+\begin{itemize}
+    \item Verifica se il campo \texttt{short\_description} ha un valore specifico:
+    \begin{verbatim}
+current.short_description == "Hello world"
+    \end{verbatim}
+    \item Verifica se il campo \texttt{state} è cambiato al valore 6:
+    \begin{verbatim}
+current.state.changesTo(6)
+    \end{verbatim}
+    \item Verifica se il campo \texttt{short\_description} non è vuoto:
+    \begin{verbatim}
+!current.short_description.nil()
+    \end{verbatim}
+    \item Verifica se il campo \texttt{short\_description} è cambiato rispetto al precedente:
+    \begin{verbatim}
+current.short_description != previous.short_description
+    \end{verbatim}
+\end{itemize}
+
+\subsection{Esempio di script}
+
+\begin{verbatim}
+(function executeRule(current, previous /*null when async*/) {
+  // Se la descrizione non è cambiata, non fare nulla
+  if (current.description == previous.description) {
+    return;
+  }
+
+  // Aggiunge un suffisso alla descrizione
+  current.short_description = current.short_description + " - verificato";
+
+  // Imposta un valore hardcoded su un altro campo
+  current.state = 6;
+
+})(current, previous);
+\end{verbatim}
+
+
+\section{Dot-Walking}
+
+\subsection{Introduzione}
+Il \textbf{Dot-Walking} permette di accedere ai campi dei record correlati direttamente tramite scripting. 
+I campi di tipo \textit{Reference} contengono lo \texttt{sys\_id} di un record in un'altra tabella, e dot-walking consente di leggere o scrivere valori senza query aggiuntive.
+
+\subsection{Sintassi}
+\begin{verbatim}
+<oggetto_corrente>.<campo_reference>.<campo_del_record_correlato>
+\end{verbatim}
+
+\subsection{Esempi}
+
+\begin{itemize}
+    \item Controllare l'email di un utente referenziato:
+    \begin{verbatim}
+if(current.u_requested_for.email == "beth.anglin@example.com"){  
+  // logica qui
+}
+    \end{verbatim}
+    
+    \item Accedere a campi più profondi:
+    \begin{verbatim}
+var latitudine = current.u_requested_for.company.latitude;
+    \end{verbatim}
+\end{itemize}
+
+\subsection{Script Tree}
+Il \textbf{Script Tree} permette di navigare tra i campi dei record correlati. Cliccando su un campo, ServiceNow inserisce automaticamente la sintassi di dot-walking nello script.
+
+
+\section{Server-side APIs}
+
+Le \textbf{Server-side APIs} sono classi e metodi forniti da ServiceNow per interagire con il database e con la piattaforma direttamente dal server. 
+Queste API vengono utilizzate nei \textit{Business Rules}, \textit{Script Includes}, \textit{Inbound Email Actions} e altri script lato server.
+\section{Current, Previous e GlideSystem in Business Rules}
+
+\subsection{Oggetti disponibili}
+\begin{itemize}
+    \item \textbf{current}: rappresenta il record attuale su cui viene eseguito lo script. Contiene tutti i campi aggiornati in tempo reale.
+    \item \textbf{previous}: rappresenta lo stato del record prima della modifica. Utile per confrontare i valori vecchi e nuovi. Non disponibile nelle Business Rules \texttt{async}.
+    \item \textbf{gs (GlideSystem)}: oggetto di sistema per funzioni generali come logging, messaggi all'utente, generazione eventi, ecc. Non gestisce direttamente \texttt{current} o \texttt{previous}.
+\end{itemize}
+
+\subsection{Esempio di utilizzo}
+\begin{verbatim}
+// Se lo stato del record è cambiato a 6
+if(current.state.changesTo(6)) {
+    gs.addInfoMessage("Lo stato del record è diventato 6!");
+}
+
+// Confronto current e previous
+if(current.short_description != previous.short_description){
+    gs.log("La descrizione è cambiata!");
+}
+\end{verbatim}
+
+\subsection{Note}
+\begin{itemize}
+    \item \texttt{current} e \texttt{previous} sono oggetti \texttt{GlideRecord}.
+    \item \texttt{gs} è indipendente dai record e fornisce metodi generici di sistema.
+\end{itemize}
+
+\subsection{GlideSystem (gs)}
+
+Permette di accedere a informazioni generali sul contesto di esecuzione.
+
+\begin{itemize}
+    \item \texttt{gs.getUserName()} - restituisce il nome dell'utente corrente.
+    \item \texttt{gs.nowDateTime()} - restituisce la data e ora corrente.
+    \item \texttt{gs.addInfoMessage("Messaggio")} - aggiunge un messaggio informativo alla UI.
+    \item \texttt{gs.log("Messaggio")} - scrive un messaggio di log sul sistema.
+\end{itemize}
+
+\subsection{GlideRecord}
+
+Serve per leggere, creare, aggiornare o cancellare record nel database.
+
+\begin{verbatim}
+// Esempio di utilizzo di GlideRecord
+var gr = new GlideRecord('incident');
+gr.addQuery('state', 1); // aggiunge un filtro
+gr.query();
+while(gr.next()){
+    gs.log(gr.number);
+}
+\end{verbatim}
+
+\begin{itemize}
+    \item Metodi principali: \texttt{get()}, \texttt{update()}, \texttt{insert()}, \texttt{deleteRecord()}.
+    \item Supporta il \textbf{dot-walking} per accedere ai record correlati.
+\end{itemize}
+
+\subsection{GlideDateTime}
+
+Gestisce data e ora in ServiceNow.
+
+\begin{itemize}
+    \item Creazione oggetto data/ora: \texttt{var gdt = new GlideDateTime();}
+    \item Aggiunta giorni: \texttt{gdt.addDays(3);}
+    \item Formato leggibile: \texttt{gdt.getDisplayValue();}
+\end{itemize}
+
+\subsection{Note importanti}
+
+\begin{itemize}
+    \item Le API sono \textbf{release-specific}: alcune funzioni possono variare tra versioni (es. San Diego vs Utah).
+    \item Esistono versioni \textbf{scoped} e \textbf{global} delle API: usare quella corretta in base al contesto dell'applicazione.
+\end{itemize}
+
+
+\section{GlideSystem API}
+
+La \textbf{GlideSystem} (gs) è un oggetto server-side fondamentale in ServiceNow che permette di:
+
+\begin{itemize}
+    \item Accedere a informazioni sull'utente corrente e sul contesto.
+    \item Loggare messaggi di diversi livelli (debug, info, warning, error).
+    \item Mostrare messaggi all'utente nella UI.
+    \item Generare eventi.
+    \item Eseguire controlli temporali e calcoli sulle date.
+\end{itemize}
+
+\subsection{Esempio di utilizzo}
+
+Il seguente script mostra come usare alcune funzionalità di GlideSystem:
+
+\begin{verbatim}
+// Scrive un messaggio nel log di sistema
+gs.log("Messaggio di log");
+
+// Mostra un messaggio informativo nella pagina dell'utente
+gs.addInfoMessage("Questo è un messaggio informativo");
+
+// Mostra un messaggio di errore nella pagina dell'utente
+gs.addErrorMessage("Questo è un messaggio di errore");
+\end{verbatim}
+
+\subsection{Note}
+
+\begin{itemize}
+    \item \texttt{gs.log()} invia i messaggi al log di sistema visibile in \textit{System Logs > All}.
+    \item \texttt{gs.addInfoMessage()} e \texttt{gs.addErrorMessage()} scrivono messaggi visibili all'utente nella pagina corrente.
+    \item Altri metodi utili includono \texttt{gs.eventQueue()} per generare eventi e \texttt{gs.nowDateTime()} per ottenere la data/ora corrente.
+\end{itemize}
+
+
+\section{GlideRecord}
+
+\subsection{Creazione e query}
+\begin{verbatim}
+// Creazione oggetto GlideRecord
+var gr = new GlideRecord('table_name');
+
+// Aggiunta condizioni
+gr.addQuery('state', 14);
+gr.addQuery('active', true);
+
+// Esecuzione query
+gr.query();
+\end{verbatim}
+
+\subsection{Iterazione sui record}
+\begin{verbatim}
+// Itera tutti i record
+while(gr.next()){
+    gs.info(gr.number + " - " + gr.short_description);
+}
+
+// Aggiornamento record singolo
+if(gr.next()){
+    gr.priority = 4;
+    gr.update();
+}
+
+// Aggiornamento multiplo
+gr.setValue('priority', 4);
+gr.updateMultiple();
+\end{verbatim}
+
+\subsection{Query complesse e encodedQuery}
+\begin{verbatim}
+var gr = new GlideRecord('x_snc_needit_needit');
+gr.addEncodedQuery(
+  "u_when_neededBETWEENjavascript:gs.daysAgoStart(0)@javascript:gs.quartersAgoEnd(1)^active=true^state=14^ORstate=16"
+);
+gr.query();
+while(gr.next()){
+  // Logica sui record
+}
+\end{verbatim}
+
+\subsection{Note}
+\begin{itemize}
+    \item `addQuery` senza operatore assume `=`.
+    \item `getRowCount()` può avere impatto sulle performance, usare `GlideAggregate` in produzione.
+    \item Le condizioni multiple in `addQuery` sono AND di default; usare encodedQuery per OR complessi.
+\end{itemize}
+
+\section{GlideDateTime}
+
+\subsection{Creazione oggetti}
+\begin{verbatim}
+// Ora corrente
+var gdt = new GlideDateTime();
+
+// Data/ora specifica
+var gdt2 = new GlideDateTime('2025-12-10 15:00:00');
+\end{verbatim}
+
+\subsection{Confronto date}
+\begin{verbatim}
+if (gdt.after(gdt2)) {
+    gs.info('gdt è più recente di gdt2');
+}
+\end{verbatim}
+
+\subsection{Operazioni su date}
+\begin{verbatim}
+// Aggiunge 3 giorni
+gdt.addDaysLocalTime(3);
+
+// Aggiunge 60 secondi in UTC
+gdt.addSecondsUTC(60);
+\end{verbatim}
+
+\subsection{Formattazione e conversione}
+\begin{verbatim}
+var localString = gdt.getLocalDate();
+var gmtString   = gdt.getDisplayValue();
+\end{verbatim}
+
+\subsection{Note importanti}
+\begin{itemize}
+    \item Alcuni metodi usano GMT/UTC, altri l'orario locale.
+    \item Alcuni metodi ritornano millisecondi.
+    \item Per calcoli semplici su giorni usare anche \texttt{gs.daysAgo()}.
+\end{itemize}
+
+\section{Debugging Business Rules}
+
+\subsection{Introduzione}
+Il debugging delle Business Rules permette di verificare il comportamento dei script lato server quando i record vengono inseriti, aggiornati, eliminati o letti.  
+
+\subsection{Metodi principali di debug}
+
+\begin{itemize}
+    \item \textbf{Script Editor:} Controlla errori di sintassi JavaScript e problemi banali.
+    \item \textbf{System Logs:} Usa i metodi della classe \texttt{GlideSystem} (\texttt{gs}) per loggare informazioni.
+    \begin{itemize}
+        \item \texttt{gs.info("Messaggio informativo");}
+        \item \texttt{gs.warn("Messaggio di warning");}
+        \item \texttt{gs.error("Messaggio di errore");}
+        \item \texttt{gs.debug("Messaggio di debug"); \# deve essere abilitato tramite proprietà dell'app}
+    \end{itemize}
+    I log appaiono in \textbf{System Logs > Application Logs}.
+    
+    \item \textbf{Debug Business Rule (Details):} Mostra quando una Business Rule viene eseguita o saltata, inclusi i motivi per cui la \texttt{Condition} non è soddisfatta. I log sono visibili anche nella form o lista dove la Business Rule viene eseguita.
+    
+    \item \textbf{JavaScript Debugger:} Permette di usare breakpoints, eseguire step into/out/over, e monitorare variabili durante l'esecuzione del codice lato server.
+\end{itemize}
+
+\subsection{Tip pratici}
+\begin{itemize}
+    \item Per attivare i messaggi di debug, creare o modificare la proprietà dell'app:
+    \begin{itemize}
+        \item \textbf{Nome:} \texttt{<app\_scope>.logging.verbosity}
+        \item \textbf{Valore:} \texttt{debug} (oppure lista separata da virgola: \texttt{info,warn,error})
+    \end{itemize}
+    \item Usare la funzione appropriata di \texttt{gs} in base alla gravità del messaggio.
+    \item Abilitare il debug dettagliato per analizzare la valutazione delle condizioni.
+\end{itemize}
+
+\subsection{Esempio di Business Rule con logging}
+\begin{verbatim}
+// Log di diversi livelli
+gs.info("Informazione: Short description = " + current.short_description);
+gs.warn("Attenzione: il record ha stato non previsto");
+gs.error("Errore: campo obbligatorio mancante");
+
+// Debug (assicurarsi che <app_scope>.logging.verbosity = debug)
+gs.debug("Debug: valori correnti dei campi");
+\end{verbatim}
+
+\section{Script Tracer}
+
+\subsection{Introduzione}
+Lo \textbf{Script Tracer} è uno strumento del \textit{Script Debugger} che permette di tracciare l'esecuzione dei script server-side sincroni, inclusi quelli legati a UI Actions o transazioni lato applicazione.
+
+\subsection{Componenti principali}
+\begin{itemize}
+    \item \textbf{Search field:} per cercare script o transazioni specifiche.
+    \item \textbf{Filters:} per filtrare tipi di script o tabelle.
+    \item \textbf{Start/Stop button:} avvia e ferma il tracciamento.
+    \item \textbf{Trace status:} mostra se il tracing è attivo.
+    \item \textbf{List of changes:} elenca tutti gli script e le UI Actions eseguite.
+    \item \textbf{Details:} visualizza errori o modifiche dei campi.
+\end{itemize}
+
+\subsection{Come utilizzare}
+\begin{enumerate}
+    \item Aprire \textit{System Diagnostics > Script Tracer} dal menu \textbf{All}.
+    \item Cliccare \textbf{Start Tracer}.
+    \item Tornare al form o alla lista da testare e eseguire l'azione che attiva lo script (ad esempio, clic su \textbf{Save} o \textbf{Update}).
+    \item Lo Script Tracer traccia l'esecuzione delle transazioni server-side.
+\end{enumerate}
+
+\subsection{Visualizzazione dei risultati}
+\begin{itemize}
+    \item \textbf{State tab:} mostra i campi e i valori modificati, evidenziando in verde i cambiamenti.
+    \item \textbf{Script tab:} mostra le linee di script associate all'esecuzione; con \textbf{Show Script} si visualizza l'intero script.
+    \item \textbf{Transactions tab:} dettaglia la transazione corrente, inclusi i record modificati e le operazioni eseguite.
+    \item \textbf{Errori:} indicati con un cerchio rosso contenente una X.
+\end{itemize}
+
+\subsection{Tip pratici}
+\begin{itemize}
+    \item Cliccare \textbf{Debug Script} per aprire lo script selezionato nel Script Debugger.
+    \item Usare \textbf{View File} per modificare il record dell’UI Action direttamente nella piattaforma.
+    \item Deselect “Show only changed values” per vedere tutti i campi del record e non solo quelli modificati.
+\end{itemize}
+
+
+\section{Script Debugger}
+
+\subsection{Introduzione}
+Lo \textbf{Script Debugger} è lo strumento principale per il debug dei Business Rules e altri script server-side sincroni. Permette di esaminare l'esecuzione dello script in dettaglio e di controllare il flusso di esecuzione.
+
+\subsection{Funzionalità principali}
+\begin{itemize}
+    \item Impostare, rimuovere e mettere in pausa i \textbf{breakpoints}.
+    \item Eseguire il codice \textbf{linea per linea}.
+    \item Entrare (\textbf{step into}) ed uscire (\textbf{step out}) da funzioni e chiamate a metodi.
+    \item Visualizzare valori di variabili \textbf{locali, globali e private}.
+    \item Visualizzare lo \textbf{stack di chiamate} (\textit{call stack}).
+\end{itemize}
+
+\subsection{Componenti principali del debugger}
+\begin{itemize}
+    \item Pannello del codice con evidenziazione della linea corrente.
+    \item Pannello delle variabili che mostra i valori aggiornati in tempo reale.
+    \item Call stack per analizzare la sequenza di chiamate.
+    \item Controlli di esecuzione: Step Over, Step Into, Step Out, Resume, Pause.
+\end{itemize}
+
+\subsection{Accesso e requisiti}
+\begin{itemize}
+    \item Solo utenti con i ruoli \textbf{admin} o \textbf{script\_debugger} possono utilizzare lo Script Debugger.
+    \item Modalità di apertura:
+    \begin{itemize}
+        \item \textbf{All menu} $\rightarrow$ System Diagnostics $\rightarrow$ Script Debugger
+        \item In \textbf{Studio}: File $\rightarrow$ Script Debugger
+        \item Dal \textbf{Script editor toolbar}: cliccare il bottone \textit{JavaScript Debugger}
+        \item Dalla finestra principale: avatar utente $\rightarrow$ Preferences $\rightarrow$ Debugging card $\rightarrow$ Open Script Debugger
+    \end{itemize}
+\end{itemize}
+
+\subsection{Tip pratici}
+\begin{itemize}
+    \item Usare breakpoints per fermare l'esecuzione in punti critici e analizzare valori.
+    \item Combinare lo Script Debugger con lo \textit{Script Tracer} per vedere quali script vengono eseguiti in una transazione.
+    \item Monitorare le variabili \textit{current} e \textit{previous} nei Business Rules per capire come cambiano i valori dei record.
+\end{itemize}
+
+\section{Breakpoints}
+
+\subsection{Introduzione}
+I \textbf{breakpoints} fermano l'esecuzione dello script per permettere agli sviluppatori di esaminare variabili e valori in quel punto.  
+Lo \textbf{Script Debugger} mostra nella barra di stato se uno script è in pausa a causa di un breakpoint o in attesa di raggiungerne uno.
+
+\subsection{Tipi di Breakpoints}
+\begin{itemize}
+    \item \textbf{Breakpoints normali}: si fermano sempre alla linea specificata.
+    \item \textbf{Breakpoints condizionali}: si fermano solo quando lo \textit{script condizione} restituisce true.
+\end{itemize}
+
+\subsection{Impostazione dei Breakpoints}
+\begin{itemize}
+    \item Breakpoints session-specific: influenzano solo la sessione dello sviluppatore che li ha impostati.
+    \item Impostazione:
+    \begin{itemize}
+        \item Cliccare nel \textbf{gutter} (colonna a sinistra) della linea di interesse.
+        \item Oppure clic destro $\rightarrow$ Add breakpoint.
+    \end{itemize}
+    \item Rimozione: clic o clic destro sul breakpoint.
+    \item Condizioni: clic destro sul breakpoint $\rightarrow$ Add conditional breakpoint $\rightarrow$ inserire condizione in JavaScript server-side (es. \texttt{current.short\_description != ""}).
+\end{itemize}
+
+\subsection{Indicazioni visive}
+\begin{itemize}
+    \item \textbf{Breakpoint normale}: freccia viola + sfondo grigio.
+    \item \textbf{Breakpoint condizionale}: freccia gialla + sfondo grigio.
+    \item Hover sulla freccia gialla mostra la condizione dello script.
+\end{itemize}
+
+\subsection{Controlli durante il debug}
+Quando lo script è in pausa a un breakpoint:
+\begin{itemize}
+    \item \textbf{Pause}: ferma qualsiasi sessione di debug e disabilita lo Script Debugger.
+    \item \textbf{Start debugging}: abilita lo Script Debugger e pausa sui breakpoints.
+    \item \textbf{Resume}: continua fino al prossimo breakpoint o alla fine dello script.
+    \item \textbf{Step Over}: esegue la funzione senza fermarsi sulle linee interne.
+    \item \textbf{Step Into}: entra nella funzione/method call e ferma sulla prima linea eseguita.
+    \item \textbf{Step Out}: esce dalla funzione corrente e ritorna al chiamante.
+\end{itemize}
+
+\subsection{Call Stack}
+Mostra l'elenco dei metodi e delle funzioni chiamate durante l'esecuzione.  
+Click su un elemento per visualizzare la definizione. Deve esserci uno \textit{pause} attivo per esaminare lo stack.
+
+\subsection{Transaction Details}
+Quando lo script è in pausa, i \textbf{Transaction Details} mostrano:
+\begin{itemize}
+    \item URL della richiesta
+    \item Session ID
+    \item Utente
+    \item Parametri della richiesta
+    \item Istanza
+    \item Orario di inizio e altri dettagli della transazione
+\end{itemize}
+
+\section{Session Log}
+
+\subsection{Introduzione}
+Il \textbf{Session Log} in ServiceNow è uno strumento di debug per visualizzare informazioni dettagliate sui server-side scripts eseguiti durante una sessione.  
+È utile per tracciare:
+\begin{itemize}
+    \item Business Rules
+    \item SQL
+    \item Escalations
+    \item Data Policies
+    \item Date/Time
+    \item Log, Security, Quotas
+    \item GraphQL e Security Rules
+    \item Homepage Render
+\end{itemize}
+
+\subsection{Componenti principali}
+\begin{itemize}
+    \item \textbf{Transaction list}: elenco delle transazioni registrate.
+    \item \textbf{Filters}: permette di filtrare i log per tipo, applicazione o transazione.
+    \item \textbf{Settings}: configura quali eventi tracciare (es. Business Rules, Data Policies, SQL, ecc.).
+    \item \textbf{Log text area}: area dove appaiono i messaggi registrati.
+\end{itemize}
+
+\subsection{Funzionamento}
+\begin{enumerate}
+    \item Aprire il \textbf{Session Log} nel \textit{Script Debugger}.
+    \item Cliccare \textbf{Settings} per selezionare i tipi di eventi da tracciare.
+    \item I log appaiono nell'area di testo. 
+    \item Filtrare i log per visualizzare solo i messaggi rilevanti (Info, Warn, Error, Debug).
+\end{enumerate}
+
+\subsection{Suggerimenti d'uso}
+\begin{itemize}
+    \item Configurare i Settings prima di avviare il debug.
+    \item Usare i filtri per concentrarsi sui messaggi più utili.
+    \item Combinare con Breakpoints e Script Tracer per avere una panoramica completa.
+\end{itemize}
+
+
+
+
+% ==========================
+% Fine documento
+% ==========================
+
+
+\end{document}
